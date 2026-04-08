@@ -1,71 +1,99 @@
 import 'package:flutter/material.dart';
 
-/// Brain Duel — Royal Academy color palette (Variant A).
+/// Brain Duel — Twilight Sky palette.
 ///
-/// Theme: Dark academia × royal deck. Scholarly tapi premium.
-/// Differentiates dari trivia apps lain (yang biasanya bright/flat).
+/// Inspired by Flappy Dragon's Western theme: layered sky gradient from
+/// dusty blue through lavender and rose mist to peach horizon, with deep
+/// twilight mountains in the foreground. Soft, adventurous, premium.
 class AppColors {
   AppColors._();
 
-  // === Backgrounds ===
-  static const Color bgBase = Color(0xFF1A0F1F); // deep aubergine
-  static const Color bgSurface = Color(0xFF2B1B33); // rich plum
-  static const Color bgCard = Color(0xFF3D2644); // warm purple
-  static const Color bgCardElevated = Color(0xFF4A2F52);
+  // === Sky layers (vertical gradient stops) ===
+  static const Color skyTop = Color(0xFF6B7EB8); // dusty blue (zenith)
+  static const Color skyUpper = Color(0xFF8A8BC4); // blue-violet
+  static const Color skyMid = Color(0xFF9B8BC4); // soft lavender
+  static const Color skyLow = Color(0xFFD4A5B8); // rose mist
+  static const Color skyHorizon = Color(0xFFF5C7B8); // peach glow
+
+  // === Foreground mountain layers (far → near) ===
+  static const Color mountainFar = Color(0xFF8A7BAA); // distant violet
+  static const Color mountainMid = Color(0xFF5D4E7A); // dusk purple
+  static const Color mountainNear = Color(0xFF3A2D4D); // deep twilight
+  static const Color mountainGround = Color(0xFF2A1E3A); // night earth
+
+  // === Clouds ===
+  static const Color cloudSoft = Color(0xFFF3D9E0); // pink cream
+  static const Color cloudMid = Color(0xFFC9A5C7); // dusty rose
+  static const Color cloudShadow = Color(0xFFA58AB0); // underside
+
+  // === Background aliases (for compatibility) ===
+  static const Color bgBase = Color(0xFF2A1E3A); // night earth fallback
+  static const Color bgSurface = Color(0xFF3A2D4D); // deep twilight
+  static const Color bgCard = Color(0x993A2D4D); // semi-transparent twilight (60%)
+  static const Color bgCardElevated = Color(0xCC5D4E7A); // dusk purple 80%
 
   // === Brand & Action ===
-  static const Color primary = Color(0xFF14B8A6); // teal — fresh, smart
-  static const Color primaryDark = Color(0xFF0F8A7C);
-  static const Color primaryLight = Color(0xFF2DD4BF);
+  static const Color primary = Color(0xFF4FD1C5); // dragon cyan (from WESTERN text)
+  static const Color primaryDark = Color(0xFF2FA89D);
+  static const Color primaryLight = Color(0xFF7FE5DB);
 
   // === Accents ===
-  static const Color accentParchment = Color(0xFFF5E6C8); // warm cream
-  static const Color accentParchmentDim = Color(0xFFC9B89A);
+  static const Color accentParchment = Color(0xFFF5C7B8); // peach warm
+  static const Color accentParchmentDim = Color(0xFFD4A598);
 
-  // === Rarity Colors ===
-  static const Color rarityCommon = Color(0xFFA16F4B); // bronze
-  static const Color rarityRare = Color(0xFFB8C0CC); // silver
-  static const Color rarityUnique = Color(0xFFA855F7); // amethyst
-  static const Color rarityLegendary = Color(0xFFFBBF24); // warm gold
+  // === Rarity Colors (soft pastel tuned to twilight palette) ===
+  static const Color rarityCommon = Color(0xFFB8A58E); // stone beige
+  static const Color rarityRare = Color(0xFF8FD9C9); // mint scale
+  static const Color rarityUnique = Color(0xFFC9A5C7); // dusty rose
+  static const Color rarityLegendary = Color(0xFFF5D76E); // soft gold
 
-  // === Feedback Colors ===
-  static const Color correct = Color(0xFF84CC16); // lime
-  static const Color wrong = Color(0xFFEF4444); // warm red
-  static const Color warning = Color(0xFFFBBF24);
-  static const Color info = Color(0xFF60A5FA);
+  // === Feedback ===
+  static const Color correct = Color(0xFF7ED9A5); // mint green
+  static const Color wrong = Color(0xFFE08585); // rose red
+  static const Color warning = Color(0xFFF5D76E);
+  static const Color info = Color(0xFF7FE5DB);
 
   // === Text ===
-  static const Color textPrimary = Color(0xFFFDF4E3); // warm white
-  static const Color textSecondary = Color(0xFFC9B8D9);
-  static const Color textTertiary = Color(0xFF8B7B98);
-  static const Color textDisabled = Color(0xFF5A4D63);
+  static const Color textPrimary = Color(0xFFF8F0F5); // silk white
+  static const Color textSecondary = Color(0xFFC9B8D9); // lavender gray
+  static const Color textTertiary = Color(0xFF9A8BA8); // muted lavender
+  static const Color textDisabled = Color(0xFF6B5F78);
+  static const Color textOnLight = Color(0xFF3A2D4D); // for light cards
 
   // === Borders & Dividers ===
-  static const Color borderSubtle = Color(0xFF4A2F52);
-  static const Color borderStrong = Color(0xFF6B4877);
+  static const Color borderSubtle = Color(0x338A7BAA); // 20% dusty violet
+  static const Color borderStrong = Color(0x66C9A5C7); // 40% dusty rose
 
-  // === Gradients ===
-  static const LinearGradient bgGradient = LinearGradient(
+  // === Sky gradient (top → bottom, full twilight) ===
+  static const LinearGradient skyGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFF1A0F1F), Color(0xFF110A14)],
+    stops: [0.0, 0.25, 0.5, 0.78, 1.0],
+    colors: [skyTop, skyUpper, skyMid, skyLow, skyHorizon],
   );
 
-  static const LinearGradient cardGradient = LinearGradient(
+  // === Card glass gradient (semi-transparent) ===
+  static const LinearGradient cardGlassGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF3D2644), Color(0xFF2B1B33)],
+    colors: [Color(0xB35D4E7A), Color(0x993A2D4D)],
   );
 
-  static const LinearGradient legendaryGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFFFBBF24), Color(0xFFE89800)],
-  );
-
+  // === Primary CTA gradient ===
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF14B8A6), Color(0xFF0F8A7C)],
+    colors: [Color(0xFF4FD1C5), Color(0xFF2FA89D)],
   );
+
+  // === Legendary glow ===
+  static const LinearGradient legendaryGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFF5D76E), Color(0xFFD4A540)],
+  );
+
+  // === Backward-compat fallbacks (kept for old code refs) ===
+  static const LinearGradient bgGradient = skyGradient;
+  static const LinearGradient cardGradient = cardGlassGradient;
 }
