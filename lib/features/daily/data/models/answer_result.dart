@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+
+@immutable
 class AnswerResult {
   final String questionId;
   final bool isCorrect;
@@ -10,4 +13,16 @@ class AnswerResult {
     required this.responseMs,
     required this.scoreEarned,
   });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AnswerResult &&
+          questionId == other.questionId &&
+          isCorrect == other.isCorrect &&
+          responseMs == other.responseMs &&
+          scoreEarned == other.scoreEarned;
+
+  @override
+  int get hashCode => Object.hash(questionId, isCorrect, responseMs, scoreEarned);
 }

@@ -17,16 +17,10 @@ void main() {
       expect(answerResult.scoreEarned, 100);
     });
 
-    test('AnswerResult with isCorrect: true', () {
-      const answerResult = AnswerResult(
-        questionId: 'q2',
-        isCorrect: true,
-        responseMs: 3000,
-        scoreEarned: 150,
-      );
-
-      expect(answerResult.isCorrect, true);
-      expect(answerResult.scoreEarned, greaterThan(0));
+    test('two results with same fields are equal', () {
+      const a = AnswerResult(questionId: 'q1', isCorrect: true, responseMs: 1200, scoreEarned: 760);
+      const b = AnswerResult(questionId: 'q1', isCorrect: true, responseMs: 1200, scoreEarned: 760);
+      expect(a, equals(b));
     });
 
     test('AnswerResult with isCorrect: false', () {
