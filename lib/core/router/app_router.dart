@@ -22,6 +22,7 @@ final appRouter = GoRouter(
         category: state.pathParameters['category'] ?? '',
       ),
     ),
+    // TODO: extra is not URL-serialized; persist result to state/storage for deep-link safety
     GoRoute(
       path: '/daily/result',
       builder: (context, state) {
