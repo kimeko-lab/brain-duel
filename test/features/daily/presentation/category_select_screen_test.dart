@@ -17,12 +17,12 @@ Widget _buildWithRouter({required String initialLocation}) {
     routes: [
       GoRoute(
         path: '/category',
-        builder: (_, __) => const CategorySelectScreen(),
+        builder: (context, state) => const CategorySelectScreen(),
       ),
       // Absorb the navigation target so go_router doesn't throw a 404.
       GoRoute(
         path: '/daily/game/:category',
-        builder: (_, __) => const Scaffold(body: Text('game')),
+        builder: (context, state) => const Scaffold(body: Text('game')),
       ),
     ],
   );
