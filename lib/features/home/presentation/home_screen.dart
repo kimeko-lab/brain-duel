@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -189,6 +190,7 @@ class HomeScreen extends ConsumerWidget {
           accent: AppColors.primary,
           isPrimary: true,
           delay: 500,
+          onTap: () => context.go('/daily/select'),
         ),
         const SizedBox(height: AppSpacing.md),
         _buildModeCard(
@@ -220,24 +222,26 @@ class HomeScreen extends ConsumerWidget {
     required Color accent,
     required int delay,
     bool isPrimary = false,
+    VoidCallback? onTap,
   }) {
     return _GlassCard(
       padding: const EdgeInsets.all(AppSpacing.lg),
       borderColor: accent.withValues(alpha: isPrimary ? 0.7 : 0.4),
       glowColor: isPrimary ? accent.withValues(alpha: 0.35) : null,
       borderWidth: isPrimary ? 2 : 1,
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$title — coming next phase'),
-            backgroundColor: AppColors.mountainNear,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-            ),
-          ),
-        );
-      },
+      onTap: onTap ??
+          () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('$title — coming next phase'),
+                backgroundColor: AppColors.mountainNear,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                ),
+              ),
+            );
+          },
       child: Row(
         children: [
           Container(
