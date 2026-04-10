@@ -7,13 +7,13 @@ void main() {
       const answerResult = AnswerResult(
         questionId: 'q1',
         isCorrect: true,
-        responseMs: 5000,
+        responseMs: 3000,
         scoreEarned: 100,
       );
 
       expect(answerResult.questionId, 'q1');
       expect(answerResult.isCorrect, true);
-      expect(answerResult.responseMs, 5000);
+      expect(answerResult.responseMs, 3000);
       expect(answerResult.scoreEarned, 100);
     });
 

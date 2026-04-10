@@ -41,7 +41,7 @@ class _DailyClassicGameScreenState
   void _handleAnswer(int index) {
     final responseMs = _questionStartTime != null
         ? DateTime.now().difference(_questionStartTime!).inMilliseconds
-        : 5000;
+        : 10000;
     ref
         .read(dailyClassicProvider.notifier)
         .submitAnswer(index, responseMs);

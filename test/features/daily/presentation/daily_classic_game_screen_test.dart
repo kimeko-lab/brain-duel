@@ -47,11 +47,11 @@ void main() {
     await tester.pump(); // let initState fire
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-    // Drain all pending timers: mock load (200ms) + 5 questions × (5s countdown + 1.5s feedback)
+    // Drain all pending timers: mock load (200ms) + 5 questions × (10s countdown + 1.5s feedback)
     await tester.pump(const Duration(milliseconds: 300));
     // Drive through all 5 questions via timer expiry + auto-advance
     for (var i = 0; i < 5; i++) {
-      await tester.pump(const Duration(seconds: 5)); // countdown
+      await tester.pump(const Duration(seconds: 10)); // countdown
       await tester.pump(const Duration(milliseconds: 1600)); // feedback delay
     }
   });
@@ -67,8 +67,8 @@ void main() {
     expect(find.byType(QuestionCard), findsOneWidget);
     expect(find.byType(AnswerOptionTile), findsNWidgets(4));
 
-    // Drain remaining timer (countdown timer runs for up to 5s)
-    await tester.pump(const Duration(seconds: 5));
+    // Drain remaining timer (countdown timer runs for up to 10s)
+    await tester.pump(const Duration(seconds: 10));
     // Drain the 1500ms auto-advance after timer expiry
     await tester.pump(const Duration(seconds: 2));
   });
@@ -92,6 +92,6 @@ void main() {
 
     // Drain all remaining timers (1500ms auto-advance + countdown timer)
     await tester.pump(const Duration(seconds: 2));
-    await tester.pump(const Duration(seconds: 5));
+    await tester.pump(const Duration(seconds: 10));
   });
 }
