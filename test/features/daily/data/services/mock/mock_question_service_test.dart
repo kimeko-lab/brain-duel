@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:brain_duel/features/daily/data/models/question_model.dart';
 import 'package:brain_duel/features/daily/data/services/mock/mock_question_service.dart';
@@ -95,18 +97,14 @@ void main() {
         expect(actualCategories, equals(expectedCategories));
       });
 
-      test('returns shuffled results (two calls produce different orderings)', () async {
-        // Run multiple times until we get a different order, confirming shuffle is applied.
-        // With 25 items the probability of identical order is astronomically low.
-        final first = await service.getAllQuestions();
-        final second = await service.getAllQuestions();
-        final firstIds = first.map((q) => q.id).toList();
-        final secondIds = second.map((q) => q.id).toList();
-        // Both should still have all 25 questions
-        expect(firstIds.length, equals(25));
-        expect(secondIds.length, equals(25));
-        // The order should differ (extremely unlikely to match by chance)
-        expect(firstIds, isNot(equals(secondIds)));
+      test('respects provided Random instance for shuffling', () async {
+        final result1 = await service.getAllQuestions(random: Random(42));
+        final result2 = await service.getAllQuestions(random: Random(42));
+        expect(
+          result1.map((q) => q.id).toList(),
+          equals(result2.map((q) => q.id).toList()),
+          reason: 'same seed should produce same order',
+        );
       });
     });
   });

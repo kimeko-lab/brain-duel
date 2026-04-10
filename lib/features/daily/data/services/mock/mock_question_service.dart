@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:brain_duel/features/daily/data/models/question_model.dart';
 import 'package:brain_duel/features/daily/domain/repositories/question_repository.dart';
 
@@ -9,10 +11,10 @@ class MockQuestionService implements QuestionRepository {
   }
 
   @override
-  Future<List<QuestionModel>> getAllQuestions() async {
+  Future<List<QuestionModel>> getAllQuestions({Random? random}) async {
     await Future.delayed(const Duration(milliseconds: 200));
     final all = _questions.values.expand((q) => q).toList();
-    all.shuffle();
+    all.shuffle(random);
     return all;
   }
 
