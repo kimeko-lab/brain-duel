@@ -2,16 +2,16 @@ import 'package:brain_duel/features/daily/data/models/question_model.dart';
 
 /// Calculates score for a single answered question.
 /// Formula: BASE(1000) × timeBonus × rarityMult
-/// Returns 0 if incorrect or responseMs is out of valid range (100–5000ms).
+/// Returns 0 if incorrect or responseMs is out of valid range (100–10000ms).
 int calculateScore({
   required bool isCorrect,
   required int responseMs,
   required QuestionRarity rarity,
 }) {
   if (!isCorrect) return 0;
-  if (responseMs < 100 || responseMs > 5000) return 0;
+  if (responseMs < 100 || responseMs > 10000) return 0;
   const base = 1000;
-  final timeBonus = (5000 - responseMs) / 5000;
+  final timeBonus = (10000 - responseMs) / 10000;
   final rarityMult = switch (rarity) {
     QuestionRarity.common => 1.0,
     QuestionRarity.rare => 1.3,
