@@ -166,7 +166,8 @@ void main() {
       // Answer one correct question before time runs out
       shortNotifier.submitAnswer(0, 2000);
 
-      // Wait for 500ms feedback + timer expiry (timer at 300ms)
+      // Countdown expires first (~300ms → _finish sets phase=finished),
+      // then at ~500ms _nextQuestion fires but is suppressed by the phase==finished guard.
       await Future.delayed(const Duration(milliseconds: 600));
 
       expect(shortNotifier.state.phase, RushPhase.finished);

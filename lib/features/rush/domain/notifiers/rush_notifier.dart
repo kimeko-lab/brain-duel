@@ -10,6 +10,7 @@ import 'package:brain_duel/features/daily/domain/utils/scoring.dart';
 class RushNotifier extends StateNotifier<RushState> {
   final QuestionRepository _repository;
   Timer? _countdownTimer;
+  Timer? _feedbackTimer;
 
   RushNotifier(this._repository) : super(const RushState());
 
@@ -68,7 +69,7 @@ class RushNotifier extends StateNotifier<RushState> {
       selectedIndex: selectedIndex,
     );
 
-    Future.delayed(const Duration(milliseconds: 500), _nextQuestion);
+    _feedbackTimer = Timer(const Duration(milliseconds: 500), _nextQuestion);
   }
 
   void _nextQuestion() {
@@ -85,13 +86,15 @@ class RushNotifier extends StateNotifier<RushState> {
   }
 
   void _finish() {
-    if (state.phase == RushPhase.finished) return;
     if (!mounted) return;
+    if (state.phase == RushPhase.finished) return;
+    _feedbackTimer?.cancel();
+    _feedbackTimer = null;
     _countdownTimer?.cancel();
     _countdownTimer = null;
     final totalTimeRemainingSeconds = state.timeRemainingMs / 1000;
     final crystals = calculateCrystals(
-      correctCount: state.answers.where((a) => a.isCorrect).length,
+      correctCount: state.correctCount,
       totalTimeRemainingSeconds: totalTimeRemainingSeconds,
     );
     state = state.copyWith(
@@ -103,6 +106,7 @@ class RushNotifier extends StateNotifier<RushState> {
 
   @override
   void dispose() {
+    _feedbackTimer?.cancel();
     _countdownTimer?.cancel();
     super.dispose();
   }

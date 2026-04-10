@@ -93,7 +93,7 @@ class SurvivalNotifier extends StateNotifier<SurvivalState> {
       (sum, a) => sum + (10000 - a.responseMs.clamp(0, 10000)) / 1000,
     );
     final crystals = calculateCrystals(
-      correctCount: state.answers.where((a) => a.isCorrect).length,
+      correctCount: state.correctCount,
       totalTimeRemainingSeconds: totalTimeRemainingSeconds,
     );
     state = state.copyWith(crystals: crystals, phase: SurvivalPhase.finished);
