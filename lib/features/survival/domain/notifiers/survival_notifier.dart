@@ -18,6 +18,10 @@ class SurvivalNotifier extends StateNotifier<SurvivalState> {
     );
   }
 
+  /// Submits the player's answer.
+  /// Correct → feedback then advance to next question.
+  /// Wrong → feedback then end the game.
+  /// The UI must cancel the per-question countdown timer before calling this.
   void submitAnswer(int selectedIndex, int responseMs) {
     final question = state.currentQuestion;
     if (question == null || state.phase != SurvivalPhase.answering) return;
@@ -50,6 +54,8 @@ class SurvivalNotifier extends StateNotifier<SurvivalState> {
     }
   }
 
+  /// Called when the per-question timer expires.
+  /// Ends the game immediately (no feedback delay).
   void timerExpired() {
     final question = state.currentQuestion;
     if (question == null || state.phase != SurvivalPhase.answering) return;
@@ -57,7 +63,7 @@ class SurvivalNotifier extends StateNotifier<SurvivalState> {
     final result = AnswerResult(
       questionId: question.id,
       isCorrect: false,
-      responseMs: 10000,
+      responseMs: 10000, // max responseMs → 0 time bonus
       scoreEarned: 0,
     );
 
@@ -80,6 +86,7 @@ class SurvivalNotifier extends StateNotifier<SurvivalState> {
   }
 
   void _finish() {
+    if (state.phase == SurvivalPhase.finished) return;
     if (!mounted) return;
     final totalTimeRemainingSeconds = state.answers.fold<double>(
       0,
