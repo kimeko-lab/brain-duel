@@ -75,6 +75,8 @@ class RushNotifier extends StateNotifier<RushState> {
   void _nextQuestion() {
     if (!mounted) return;
     if (state.phase == RushPhase.finished) return;
+    // Rush cycles through questions indefinitely until time runs out;
+    // duplicate question IDs in answers are intentional.
     final nextIndex = state.questions.isNotEmpty
         ? (state.currentIndex + 1) % state.questions.length
         : 0;

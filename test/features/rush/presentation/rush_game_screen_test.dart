@@ -99,6 +99,9 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     // Phase should now be showingFeedback — tiles are non-interactive.
     expect(find.byType(AnswerOptionTile), findsNWidgets(4));
+    // Still showing the question (not navigating away or in a loading state).
+    expect(find.byType(QuestionCard), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
 
     // Drain remaining timers
     await tester.pump(const Duration(seconds: 2));
