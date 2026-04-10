@@ -4,6 +4,10 @@ import '../../features/daily/presentation/category_select_screen.dart';
 import '../../features/daily/presentation/daily_classic_game_screen.dart';
 import '../../features/daily/presentation/daily_classic_result_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/rush/presentation/rush_game_screen.dart';
+import '../../features/rush/presentation/rush_result_screen.dart';
+import '../../features/survival/presentation/survival_game_screen.dart';
+import '../../features/survival/presentation/survival_result_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -28,6 +32,28 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final extra = state.extra as Map<String, dynamic>?;
         return DailyClassicResultScreen(extra: extra ?? {});
+      },
+    ),
+    GoRoute(
+      path: '/survival/game',
+      builder: (context, state) => const SurvivalGameScreen(),
+    ),
+    GoRoute(
+      path: '/survival/result',
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        return SurvivalResultScreen(extra: extra ?? {});
+      },
+    ),
+    GoRoute(
+      path: '/rush/game',
+      builder: (context, state) => const RushGameScreen(),
+    ),
+    GoRoute(
+      path: '/rush/result',
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        return RushResultScreen(extra: extra ?? {});
       },
     ),
   ],
