@@ -118,4 +118,19 @@ void main() {
     expect(state.crystals, greaterThan(0));
     expect(state.correctCount, 2);
   });
+
+  test('game finishes gracefully when all 25 questions answered correctly', () async {
+    await container.read(survivalProvider.notifier).loadQuestions();
+    final notifier = container.read(survivalProvider.notifier);
+
+    for (var i = 0; i < 25; i++) {
+      final q = container.read(survivalProvider).currentQuestion!;
+      notifier.submitAnswer(q.correctIndex, 1000);
+      await Future.delayed(const Duration(milliseconds: 1600));
+    }
+
+    final state = container.read(survivalProvider);
+    expect(state.phase, SurvivalPhase.finished);
+    expect(state.correctCount, 25);
+  }, timeout: const Timeout(Duration(minutes: 2)));
 }

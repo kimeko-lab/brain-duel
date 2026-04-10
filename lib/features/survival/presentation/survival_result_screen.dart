@@ -191,7 +191,7 @@ class SurvivalResultScreen extends StatelessWidget {
           ),
         ),
         child: Text(
-          'BEST STREAK: $correctCount',
+          'STREAK: $correctCount',
           style: AppTypography.labelSmall.copyWith(
             color: AppColors.primary,
             letterSpacing: 2,

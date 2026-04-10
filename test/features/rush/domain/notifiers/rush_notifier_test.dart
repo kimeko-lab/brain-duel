@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:brain_duel/features/rush/domain/notifiers/rush_notifier.dart';
 import 'package:brain_duel/features/rush/domain/state/rush_state.dart';
@@ -11,7 +13,7 @@ class FakeQuestionRepository implements QuestionRepository {
   FakeQuestionRepository(this._questions);
 
   @override
-  Future<List<QuestionModel>> getAllQuestions() async => _questions;
+  Future<List<QuestionModel>> getAllQuestions({Random? random}) async => _questions;
 
   @override
   Future<List<QuestionModel>> getQuestionsForCategory(String category) async =>

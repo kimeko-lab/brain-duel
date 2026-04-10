@@ -65,13 +65,13 @@ void main() {
   testWidgets('streak chip visible when correctCount > 0', (tester) async {
     await tester.pumpWidget(buildResultScreen(correctCount: 7));
     await tester.pump(const Duration(seconds: 1));
-    expect(find.text('BEST STREAK: 7'), findsOneWidget);
+    expect(find.text('STREAK: 7'), findsOneWidget);
   });
 
   testWidgets('no streak chip when correctCount == 0', (tester) async {
     await tester.pumpWidget(buildResultScreen(correctCount: 0));
     await tester.pump(const Duration(seconds: 1));
-    expect(find.textContaining('BEST STREAK'), findsNothing);
+    expect(find.textContaining('STREAK:'), findsNothing);
   });
 
   testWidgets('shows correct in a row message when correctCount > 0',

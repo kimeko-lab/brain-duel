@@ -69,20 +69,24 @@ class SurvivalNotifier extends StateNotifier<SurvivalState> {
 
     state = state.copyWith(
       answers: [...state.answers, result],
-      phase: SurvivalPhase.showingFeedback,
       clearSelectedIndex: true,
     );
-
+    // Go directly to finish — no intermediate showingFeedback state
     _finish();
   }
 
   void _nextQuestion() {
     if (!mounted) return;
-    state = state.copyWith(
-      currentIndex: state.currentIndex + 1,
-      phase: SurvivalPhase.answering,
-      clearSelectedIndex: true,
-    );
+    final next = state.currentIndex + 1;
+    if (next >= state.questions.length) {
+      _finish();  // all questions answered — finish gracefully
+    } else {
+      state = state.copyWith(
+        currentIndex: next,
+        phase: SurvivalPhase.answering,
+        clearSelectedIndex: true,
+      );
+    }
   }
 
   void _finish() {
