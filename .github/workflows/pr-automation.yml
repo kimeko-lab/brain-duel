@@ -1,0 +1,56 @@
+name: PR Automation
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  assign-reviewer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto-assign reviewer
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const author = context.payload.pull_request.user.login;
+            const reviewerMap = {
+              'kimeko':    'theslazher',   // FE buat PR → BE review
+              'theslazher': 'kimeko',      // BE buat PR → FE review
+            };
+            const reviewer = reviewerMap[author];
+            if (!reviewer) {
+              console.log(`No reviewer mapping for author: ${author}`);
+              return;
+            }
+            await github.rest.pulls.requestReviewers({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              reviewers: [reviewer],
+            });
+            console.log(`Assigned ${reviewer} as reviewer for PR by ${author}`);
+
+  enable-auto-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enable auto-merge after approval
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.pulls.updateBranch;
+            const pr = context.payload.pull_request;
+            await github.graphql(`
+              mutation EnableAutoMerge($pullRequestId: ID!) {
+                enablePullRequestAutoMerge(input: {
+                  pullRequestId: $pullRequestId,
+                  mergeMethod: MERGE
+                }) {
+                  pullRequest { number }
+                }
+              }
+            `, { pullRequestId: pr.node_id });
+            console.log(`Auto-merge enabled for PR #${pr.number}`);

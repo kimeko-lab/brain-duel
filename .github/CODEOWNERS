@@ -1,0 +1,11 @@
+# Brain Duel — Code Ownership
+# FE (Flutter) → theslazher review
+# BE (future backend) → kimeko review
+
+# Default: semua FE code di-review oleh theslazher
+* @theslazher
+
+# Future BE files (uncomment saat BE ditambah)
+# /backend/**   @kimeko
+# /api/**        @kimeko
+# /server/**     @kimeko
