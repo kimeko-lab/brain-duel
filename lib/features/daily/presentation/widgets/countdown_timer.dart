@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 
-/// Counts down from 5.0 to 0.0 seconds and calls [onExpired] when it hits 0.
+/// Counts down from 10.0 to 0.0 seconds and calls [onExpired] when it hits 0.
 ///
 /// Pauses automatically when [isActive] is false (e.g. during showingFeedback).
 /// Resets when the widget is recreated (i.e. when a new question begins).
@@ -24,7 +24,7 @@ class CountdownTimer extends StatefulWidget {
 }
 
 class _CountdownTimerState extends State<CountdownTimer> {
-  static const double _startSeconds = 5.0;
+  static const double _startSeconds = 10.0;
   static const int _tickMs = 100;
 
   double _remaining = _startSeconds;

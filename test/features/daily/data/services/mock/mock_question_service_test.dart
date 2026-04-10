@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:brain_duel/features/daily/data/models/question_model.dart';
 import 'package:brain_duel/features/daily/data/services/mock/mock_question_service.dart';
@@ -75,6 +77,35 @@ void main() {
           }
         });
       }
+    });
+
+    group('getAllQuestions', () {
+      test('returns a non-empty list', () async {
+        final questions = await service.getAllQuestions();
+        expect(questions, isNotEmpty);
+      });
+
+      test('returns all 25 questions (5 categories × 5 questions each)', () async {
+        final questions = await service.getAllQuestions();
+        expect(questions.length, equals(25));
+      });
+
+      test('all 5 categories are represented in the result', () async {
+        final questions = await service.getAllQuestions();
+        const expectedCategories = {'science', 'geography', 'history', 'sport', 'entertainment'};
+        final actualCategories = questions.map((q) => q.category).toSet();
+        expect(actualCategories, equals(expectedCategories));
+      });
+
+      test('respects provided Random instance for shuffling', () async {
+        final result1 = await service.getAllQuestions(random: Random(42));
+        final result2 = await service.getAllQuestions(random: Random(42));
+        expect(
+          result1.map((q) => q.id).toList(),
+          equals(result2.map((q) => q.id).toList()),
+          reason: 'same seed should produce same order',
+        );
+      });
     });
   });
 }

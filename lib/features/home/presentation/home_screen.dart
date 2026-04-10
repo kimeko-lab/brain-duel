@@ -200,6 +200,7 @@ class HomeScreen extends ConsumerWidget {
           icon: Icons.local_fire_department_rounded,
           accent: AppColors.wrong,
           delay: 600,
+          onTap: () => context.go('/survival/game'),
         ),
         const SizedBox(height: AppSpacing.md),
         _buildModeCard(
@@ -209,6 +210,7 @@ class HomeScreen extends ConsumerWidget {
           icon: Icons.bolt_rounded,
           accent: AppColors.rarityLegendary,
           delay: 700,
+          onTap: () => context.go('/rush/game'),
         ),
       ],
     );

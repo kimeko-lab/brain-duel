@@ -22,10 +22,10 @@ void main() {
       expect(result, 0);
     });
 
-    test('returns 0 when responseMs > 5000 (e.g. 6000ms)', () {
+    test('returns 0 when responseMs > 10000 (e.g. 11000ms)', () {
       final result = calculateScore(
         isCorrect: true,
-        responseMs: 6000,
+        responseMs: 11000,
         rarity: QuestionRarity.common,
       );
       expect(result, 0);
@@ -41,13 +41,14 @@ void main() {
       expect(result, lessThanOrEqualTo(1000));
     });
 
-    test('returns small score when responseMs is 4999ms and common (near timeout → small timeBonus)', () {
+    test('returns small score when responseMs is 9900ms and common (near timeout → small timeBonus)', () {
       final result = calculateScore(
         isCorrect: true,
-        responseMs: 4999,
+        responseMs: 9900,
         rarity: QuestionRarity.common,
       );
-      expect(result, 0);
+      // Formula: (1000 * (10000 - 9900) / 10000 * 1.0).round() = (1000 * 0.01).round() = 10
+      expect(result, 10);
     });
 
     test('returns higher score for rare vs common at same responseMs', () {
@@ -80,30 +81,30 @@ void main() {
       expect(legendaryScore, greaterThan(rareScore));
     });
 
-    test('correct formula: responseMs=1000ms, common → expect 800', () {
+    test('correct formula: responseMs=1000ms, common → expect 900', () {
       final result = calculateScore(
         isCorrect: true,
         responseMs: 1000,
         rarity: QuestionRarity.common,
       );
-      // Formula: (1000 * (5000 - 1000) / 5000 * 1.0).round() = (1000 * 0.8 * 1.0).round() = 800
-      expect(result, 800);
+      // Formula: (1000 * (10000 - 1000) / 10000 * 1.0).round() = (1000 * 0.9 * 1.0).round() = 900
+      expect(result, 900);
     });
 
-    test('correct formula: responseMs=2500ms, rare → expect 650', () {
+    test('correct formula: responseMs=2500ms, rare → expect 975', () {
       final result = calculateScore(
         isCorrect: true,
         responseMs: 2500,
         rarity: QuestionRarity.rare,
       );
-      // Formula: (1000 * (5000 - 2500) / 5000 * 1.3).round() = (1000 * 0.5 * 1.3).round() = 650
-      expect(result, 650);
+      // Formula: (1000 * (10000 - 2500) / 10000 * 1.3).round() = (1000 * 0.75 * 1.3).round() = 975
+      expect(result, 975);
     });
 
-    test('timer at exactly 5000ms (boundary) — timeBonus = 0, score = 0 even if correct', () {
+    test('timer at exactly 10000ms (boundary) — timeBonus = 0, score = 0 even if correct', () {
       final result = calculateScore(
         isCorrect: true,
-        responseMs: 5000,
+        responseMs: 10000,
         rarity: QuestionRarity.common,
       );
       expect(result, 0);

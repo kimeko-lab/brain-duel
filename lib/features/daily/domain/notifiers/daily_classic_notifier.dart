@@ -54,7 +54,7 @@ class DailyClassicNotifier extends StateNotifier<DailyClassicState> {
     final result = AnswerResult(
       questionId: question.id,
       isCorrect: false,
-      responseMs: 5000,
+      responseMs: 10000,
       scoreEarned: 0,
     );
 
@@ -72,7 +72,7 @@ class DailyClassicNotifier extends StateNotifier<DailyClassicState> {
     if (state.isLastQuestion) {
       final totalTimeRemainingSeconds = state.answers.fold<double>(
         0,
-        (sum, a) => sum + (5000 - a.responseMs.clamp(0, 5000)) / 1000,
+        (sum, a) => sum + (10000 - a.responseMs.clamp(0, 10000)) / 1000,
       );
       final crystals = calculateCrystals(
         correctCount: state.answers.where((a) => a.isCorrect).length,

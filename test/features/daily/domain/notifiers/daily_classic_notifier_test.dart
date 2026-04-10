@@ -55,13 +55,13 @@ void main() {
     expect(state.answers.first.isCorrect, false);
   });
 
-  test('timerExpired records incorrect answer with responseMs 5000', () async {
+  test('timerExpired records incorrect answer with responseMs 10000', () async {
     await loadScience();
     container.read(dailyClassicProvider.notifier).timerExpired();
     final state = container.read(dailyClassicProvider);
     expect(state.phase, GamePhase.showingFeedback);
     expect(state.answers.first.isCorrect, false);
-    expect(state.answers.first.responseMs, 5000);
+    expect(state.answers.first.responseMs, 10000);
     expect(state.selectedIndex, isNull);
   });
 
