@@ -8,6 +8,14 @@ class MockQuestionService implements QuestionRepository {
     return _questions[category] ?? [];
   }
 
+  @override
+  Future<List<QuestionModel>> getAllQuestions() async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    final all = _questions.values.expand((q) => q).toList();
+    all.shuffle();
+    return all;
+  }
+
   static const _questions = <String, List<QuestionModel>>{
     'science': [
       QuestionModel(

@@ -76,5 +76,38 @@ void main() {
         });
       }
     });
+
+    group('getAllQuestions', () {
+      test('returns a non-empty list', () async {
+        final questions = await service.getAllQuestions();
+        expect(questions, isNotEmpty);
+      });
+
+      test('returns all 25 questions (5 categories × 5 questions each)', () async {
+        final questions = await service.getAllQuestions();
+        expect(questions.length, equals(25));
+      });
+
+      test('all 5 categories are represented in the result', () async {
+        final questions = await service.getAllQuestions();
+        const expectedCategories = {'science', 'geography', 'history', 'sport', 'entertainment'};
+        final actualCategories = questions.map((q) => q.category).toSet();
+        expect(actualCategories, equals(expectedCategories));
+      });
+
+      test('returns shuffled results (two calls produce different orderings)', () async {
+        // Run multiple times until we get a different order, confirming shuffle is applied.
+        // With 25 items the probability of identical order is astronomically low.
+        final first = await service.getAllQuestions();
+        final second = await service.getAllQuestions();
+        final firstIds = first.map((q) => q.id).toList();
+        final secondIds = second.map((q) => q.id).toList();
+        // Both should still have all 25 questions
+        expect(firstIds.length, equals(25));
+        expect(secondIds.length, equals(25));
+        // The order should differ (extremely unlikely to match by chance)
+        expect(firstIds, isNot(equals(secondIds)));
+      });
+    });
   });
 }
