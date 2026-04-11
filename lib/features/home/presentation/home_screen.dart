@@ -1,458 +1,406 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
-import '../../../core/widgets/background/sky_background.dart';
+import '../../../core/theme/arcane_theme.dart';
+import 'widgets/classic_mode_sheet.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  void _showClassicSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: false,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => const ClassicModeSheet(),
+    );
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      body: SkyBackground(
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildHeader(),
-                const SizedBox(height: AppSpacing.xl),
-                _buildStatsRow(),
-                const SizedBox(height: AppSpacing.xl),
-                _buildModesSection(context),
-                const SizedBox(height: AppSpacing.xl),
-                _buildPlaceholderCard(),
-                const SizedBox(height: AppSpacing.xxl),
-              ],
-            ),
-          ),
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: Column(
+          children: [
+            const _TopBar(),
+            const Spacer(flex: 1),
+            const _HeroTitle(),
+            const Spacer(flex: 1),
+            _ModeButtons(onClassicTap: () => _showClassicSheet(context)),
+            const Spacer(flex: 2),
+          ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'WELCOME BACK',
-              style: AppTypography.labelSmall.copyWith(
-                color: AppColors.textPrimary.withValues(alpha: 0.8),
-                letterSpacing: 2.5,
+// ─────────────────────────────────────────────────────────────────────────────
+// Top bar: currency + avatar
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _TopBar extends StatelessWidget {
+  const _TopBar();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: const [
+          _CurrencyBadge(amount: 240, isGold: false),
+          _AvatarWidget(),
+          _CurrencyBadge(amount: 80, isGold: true),
+        ],
+      ),
+    );
+  }
+}
+
+class _CurrencyBadge extends StatelessWidget {
+  const _CurrencyBadge({required this.amount, required this.isGold});
+
+  final int amount;
+  final bool isGold;
+
+  @override
+  Widget build(BuildContext context) {
+    final iconColor = isGold ? ArcaneColors.accent : Colors.white;
+    final textColor = isGold ? ArcaneColors.accent : ArcaneColors.textPrimary;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: ArcaneColors.surface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: ArcaneColors.borderSubtle, width: 1),
+        boxShadow: [
+          if (isGold)
+            BoxShadow(
+              color: ArcaneColors.accentGlow,
+              blurRadius: 10,
+              spreadRadius: -3,
+            ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Book icon — styled circle container
+          Container(
+            width: 22,
+            height: 22,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isGold
+                  ? ArcaneColors.accent.withValues(alpha: 0.25)
+                  : ArcaneColors.primaryEnd.withValues(alpha: 0.2),
+              border: Border.all(
+                color: iconColor.withValues(alpha: 0.5),
+                width: 1,
               ),
             ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              'Brain Duel',
-              style: AppTypography.displayMedium.copyWith(
-                color: AppColors.textPrimary,
-                shadows: [
-                  Shadow(
-                    color: Colors.black.withValues(alpha: 0.4),
-                    offset: const Offset(0, 2),
-                    blurRadius: 8,
+            child: Icon(
+              Icons.menu_book_rounded,
+              size: 13,
+              color: iconColor,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            '$amount',
+            style: TextStyle(
+              color: textColor,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AvatarWidget extends StatelessWidget {
+  const _AvatarWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 52,
+      height: 52,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: ArcaneGradients.primaryCta,
+        boxShadow: [
+          BoxShadow(
+            color: ArcaneColors.primaryGlow,
+            blurRadius: 14,
+            spreadRadius: -2,
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(2.5),
+      child: Container(
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          color: Color(0xFF2a0a48),
+        ),
+        child: const Icon(
+          Icons.person_rounded,
+          color: Colors.white,
+          size: 26,
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Hero title
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _HeroTitle extends StatelessWidget {
+  const _HeroTitle();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          'BRAIN DUEL',
+          style: GoogleFonts.orbitron(
+            fontSize: 28,
+            fontWeight: FontWeight.w900,
+            color: ArcaneColors.textPrimary,
+            letterSpacing: 4,
+            shadows: [
+              Shadow(
+                color: ArcaneColors.primaryGlow,
+                blurRadius: 16,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Test your mind. Duel the world.',
+          style: TextStyle(
+            fontSize: 13,
+            color: ArcaneColors.textMuted,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Mode buttons
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _ModeButtons extends StatelessWidget {
+  const _ModeButtons({required this.onClassicTap});
+
+  final VoidCallback onClassicTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: [
+          // Classic — enabled
+          _ClassicButton(onTap: onClassicTap),
+          const SizedBox(height: 12),
+          // Versus — coming soon
+          const _VersusButton(),
+        ],
+      ),
+    );
+  }
+}
+
+class _ClassicButton extends StatelessWidget {
+  const _ClassicButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 72,
+        decoration: BoxDecoration(
+          gradient: ArcaneGradients.primaryCta,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: ArcaneColors.primaryGlow,
+              blurRadius: 20,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          children: [
+            _ModeIconWidget(gradient: ArcaneGradients.modeClassicIcon, icon: Icons.auto_stories_rounded),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'CLASSIC',
+                    style: GoogleFonts.orbitron(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Daily · Survival · Rush',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white.withValues(alpha: 0.7),
+                    ),
                   ),
                 ],
               ),
             ),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: Colors.white.withValues(alpha: 0.7),
+              size: 26,
+            ),
           ],
         ),
-        _GlassCircle(
-          size: 52,
-          child: const Icon(
-            Icons.person_rounded,
-            color: AppColors.textPrimary,
-            size: 28,
-          ),
-        ),
-      ],
-    ).animate().fadeIn(duration: 500.ms).slideY(begin: -0.2, curve: Curves.easeOutCubic);
-  }
-
-  Widget _buildStatsRow() {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildStatChip(
-            label: 'RANK',
-            value: 'Bronze',
-            accent: AppColors.rarityCommon,
-            delay: 0,
-          ),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: _buildStatChip(
-            label: 'CRYSTALS',
-            value: '0',
-            accent: AppColors.primary,
-            delay: 80,
-          ),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: _buildStatChip(
-            label: 'STREAK',
-            value: '0d',
-            accent: AppColors.rarityLegendary,
-            delay: 160,
-          ),
-        ),
-      ],
+      ),
     );
   }
+}
 
-  Widget _buildStatChip({
-    required String label,
-    required String value,
-    required Color accent,
-    required int delay,
-  }) {
-    return _GlassCard(
-      padding: const EdgeInsets.symmetric(
-        vertical: AppSpacing.md,
-        horizontal: AppSpacing.sm,
+class _VersusButton extends StatelessWidget {
+  const _VersusButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 72,
+      decoration: BoxDecoration(
+        color: ArcaneColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: ArcaneColors.borderSubtle, width: 1),
       ),
-      borderColor: accent.withValues(alpha: 0.5),
-      glowColor: accent.withValues(alpha: 0.25),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: AppTypography.headlineMedium.copyWith(
-              color: accent,
-              shadows: [
-                Shadow(
-                  color: accent.withValues(alpha: 0.5),
-                  blurRadius: 12,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            label,
-            style: AppTypography.labelSmall.copyWith(
-              color: AppColors.textPrimary.withValues(alpha: 0.7),
-              letterSpacing: 1.5,
-            ),
-          ),
-        ],
-      ),
-    )
-        .animate(delay: Duration(milliseconds: 150 + delay))
-        .fadeIn(duration: 500.ms)
-        .slideY(begin: 0.25, curve: Curves.easeOutCubic);
-  }
-
-  Widget _buildModesSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: AppSpacing.xs),
-          child: Text(
-            'Game Modes',
-            style: AppTypography.headlineLarge.copyWith(
-              color: AppColors.textPrimary,
-              shadows: [
-                Shadow(
-                  color: Colors.black.withValues(alpha: 0.4),
-                  offset: const Offset(0, 2),
-                  blurRadius: 6,
-                ),
-              ],
-            ),
-          ),
-        )
-            .animate(delay: 400.ms)
-            .fadeIn(duration: 400.ms)
-            .slideX(begin: -0.1),
-        const SizedBox(height: AppSpacing.md),
-        _buildModeCard(
-          context,
-          title: 'Daily Classic',
-          subtitle: '15 questions · 5 categories',
-          icon: Icons.calendar_today_rounded,
-          accent: AppColors.primary,
-          isPrimary: true,
-          delay: 500,
-          onTap: () => context.go('/daily/select'),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        _buildModeCard(
-          context,
-          title: 'Survival',
-          subtitle: 'How long can you last?',
-          icon: Icons.local_fire_department_rounded,
-          accent: AppColors.wrong,
-          delay: 600,
-          onTap: () => context.go('/survival/game'),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        _buildModeCard(
-          context,
-          title: 'Rush Mode',
-          subtitle: '60 seconds · beat the clock',
-          icon: Icons.bolt_rounded,
-          accent: AppColors.rarityLegendary,
-          delay: 700,
-          onTap: () => context.go('/rush/game'),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildModeCard(
-    BuildContext context, {
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color accent,
-    required int delay,
-    bool isPrimary = false,
-    VoidCallback? onTap,
-  }) {
-    return _GlassCard(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      borderColor: accent.withValues(alpha: isPrimary ? 0.7 : 0.4),
-      glowColor: isPrimary ? accent.withValues(alpha: 0.35) : null,
-      borderWidth: isPrimary ? 2 : 1,
-      onTap: onTap ??
-          () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('$title — coming next phase'),
-                backgroundColor: AppColors.mountainNear,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                ),
-              ),
-            );
-          },
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
-          Container(
-            width: 58,
-            height: 58,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-              border: Border.all(
-                color: accent.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: accent.withValues(alpha: 0.3),
-                  blurRadius: 16,
-                  spreadRadius: -4,
-                ),
-              ],
+          _ModeIconWidget(
+            gradient: const LinearGradient(
+              colors: [Color(0x22ffffff), Color(0x11ffffff)],
             ),
-            child: Icon(icon, color: accent, size: 30),
+            icon: Icons.sports_kabaddi_rounded,
+            iconColor: Colors.white30,
           ),
-          const SizedBox(width: AppSpacing.md),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
-                  style: AppTypography.headlineSmall.copyWith(
-                    color: AppColors.textPrimary,
+                  'VERSUS',
+                  style: GoogleFonts.orbitron(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: ArcaneColors.textMuted,
+                    letterSpacing: 1,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  subtitle,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.textPrimary.withValues(alpha: 0.75),
+                  'Coming Soon',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: ArcaneColors.textMuted,
                   ),
                 ),
               ],
             ),
           ),
-          Icon(
-            Icons.chevron_right_rounded,
-            color: AppColors.textPrimary.withValues(alpha: 0.6),
-            size: 28,
-          ),
-        ],
-      ),
-    )
-        .animate(delay: Duration(milliseconds: delay))
-        .fadeIn(duration: 550.ms)
-        .slideY(begin: 0.15, curve: Curves.easeOutCubic);
-  }
-
-  Widget _buildPlaceholderCard() {
-    return _GlassCard(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      borderColor: AppColors.rarityLegendary.withValues(alpha: 0.4),
-      glowColor: AppColors.rarityLegendary.withValues(alpha: 0.15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.auto_awesome_rounded,
-                color: AppColors.rarityLegendary,
-                size: 20,
+          // "SOON" badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: ArcaneColors.accent.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: ArcaneColors.accent.withValues(alpha: 0.4),
+                width: 1,
               ),
-              const SizedBox(width: AppSpacing.sm),
-              Text(
-                'PHASE 0 · FOUNDATION',
-                style: AppTypography.labelMedium.copyWith(
-                  color: AppColors.rarityLegendary,
-                  letterSpacing: 1.8,
-                ),
+            ),
+            child: Text(
+              'SOON',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: ArcaneColors.accent.withValues(alpha: 0.7),
+                letterSpacing: 1,
               ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            'You\'re looking at the Brain Duel skeleton. '
-            'Sky, theme, navigation, and core widgets are in place. '
-            'Next up: question engine, scoring, and Daily Classic mode.',
-            style: AppTypography.bodyMedium.copyWith(
-              color: AppColors.textPrimary.withValues(alpha: 0.85),
-              height: 1.55,
             ),
           ),
         ],
       ),
-    ).animate(delay: 900.ms).fadeIn(duration: 700.ms);
+    );
   }
 }
 
-// ============================================================================
-// Glassmorphic widgets (backdrop blur for semi-transparent card effect)
-// ============================================================================
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared: styled mode icon widget (gradient circle + icon)
+// ─────────────────────────────────────────────────────────────────────────────
 
-/// A reusable glass card that blurs the content behind it.
-class _GlassCard extends StatelessWidget {
-  const _GlassCard({
-    required this.child,
-    required this.padding,
-    this.borderColor,
-    this.glowColor,
-    this.borderWidth = 1,
-    this.onTap,
+class _ModeIconWidget extends StatelessWidget {
+  const _ModeIconWidget({
+    required this.gradient,
+    required this.icon,
+    this.iconColor = Colors.white,
   });
 
-  final Widget child;
-  final EdgeInsetsGeometry padding;
-  final Color? borderColor;
-  final Color? glowColor;
-  final double borderWidth;
-  final VoidCallback? onTap;
-  static const double radius = AppSpacing.cardRadius;
+  final LinearGradient gradient;
+  final IconData icon;
+  final Color iconColor;
+
+  static const double _size = 44;
 
   @override
   Widget build(BuildContext context) {
-    final content = ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: padding,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppColors.mountainMid.withValues(alpha: 0.55),
-                AppColors.mountainNear.withValues(alpha: 0.65),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(radius),
-            border: Border.all(
-              color: borderColor ?? Colors.white.withValues(alpha: 0.12),
-              width: borderWidth,
-            ),
-          ),
-          child: child,
-        ),
-      ),
-    );
-
-    final withShadow = Container(
+    return Container(
+      width: _size,
+      height: _size,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(radius),
+        shape: BoxShape.circle,
+        gradient: gradient,
         boxShadow: [
-          if (glowColor != null)
-            BoxShadow(
-              color: glowColor!,
-              blurRadius: 32,
-              spreadRadius: -4,
-            ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
+            color: gradient.colors.last.withValues(alpha: 0.4),
+            blurRadius: 10,
+            spreadRadius: -2,
           ),
         ],
       ),
-      child: content,
-    );
-
-    if (onTap == null) return withShadow;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(radius),
-        splashColor: Colors.white.withValues(alpha: 0.08),
-        highlightColor: Colors.white.withValues(alpha: 0.04),
-        child: withShadow,
-      ),
-    );
-  }
-}
-
-/// Circular glass button (for avatar / profile).
-class _GlassCircle extends StatelessWidget {
-  const _GlassCircle({required this.size, required this.child});
-
-  final double size;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipOval(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            color: AppColors.mountainNear.withValues(alpha: 0.6),
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.25),
-              width: 1.5,
-            ),
-          ),
-          child: Center(child: child),
-        ),
-      ),
+      child: Icon(icon, color: iconColor, size: _size * 0.5),
     );
   }
 }
