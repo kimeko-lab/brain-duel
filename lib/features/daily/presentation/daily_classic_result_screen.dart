@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/widgets/background/sky_background.dart';
+import '../../../core/widgets/background/arcane_library_background.dart';
 import 'widgets/crystal_reward_widget.dart';
 
 class DailyClassicResultScreen extends StatelessWidget {
@@ -46,7 +46,7 @@ class DailyClassicResultScreen extends StatelessWidget {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: SkyBackground(
+      body: ArcaneLibraryBackground(
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
@@ -67,18 +67,17 @@ class DailyClassicResultScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      'Daily Classic',
-                      textAlign: TextAlign.center,
-                      style: AppTypography.displayMedium.copyWith(
-                        color: AppColors.textPrimary,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.4),
-                            offset: const Offset(0, 2),
-                            blurRadius: 8,
-                          ),
-                        ],
+                    ShaderMask(
+                      shaderCallback: (bounds) => const LinearGradient(
+                        colors: [Color(0xFFe8d8ff), AppColors.primary],
+                      ).createShader(bounds),
+                      blendMode: BlendMode.srcIn,
+                      child: Text(
+                        'Daily Classic',
+                        textAlign: TextAlign.center,
+                        style: AppTypography.displayMedium.copyWith(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ],
@@ -324,7 +323,7 @@ class DailyClassicResultScreen extends StatelessWidget {
 
     return _GlassCard(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-      borderColor: AppColors.borderStrong,
+      borderColor: AppColors.primary.withValues(alpha: 0.6),
       onTap: onTap,
       child: Center(
         child: Text(
