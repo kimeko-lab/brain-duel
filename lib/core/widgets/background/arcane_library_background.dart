@@ -29,6 +29,10 @@ class ArcaneLibraryBackground extends StatelessWidget {
 class _ArcaneLibraryPainter extends CustomPainter {
   const _ArcaneLibraryPainter();
 
+  static final _gradientPaint = Paint();
+  static final _dustPaint = Paint()..style = PaintingStyle.fill;
+  static final _shelfPaint = Paint()..style = PaintingStyle.fill;
+
   @override
   void paint(Canvas canvas, Size size) {
     _drawBackground(canvas, size);
@@ -40,46 +44,42 @@ class _ArcaneLibraryPainter extends CustomPainter {
 
   void _drawBackground(Canvas canvas, Size size) {
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
-    final paint = Paint()
-      ..shader = const LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [Color(0xFF0d0a1e), Color(0xFF160e2e), Color(0xFF0a0618)],
-        stops: [0.0, 0.5, 1.0],
-      ).createShader(rect);
-    canvas.drawRect(rect, paint);
+    _gradientPaint.shader = const LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [Color(0xFF0d0a1e), Color(0xFF160e2e), Color(0xFF0a0618)],
+      stops: [0.0, 0.5, 1.0],
+    ).createShader(rect);
+    canvas.drawRect(rect, _gradientPaint);
   }
 
   void _drawGlowOrbs(Canvas canvas, Size size) {
-    final paint = Paint();
-
     // Left purple orb
     final leftCenter = Offset(size.width * 0.18, size.height * 0.18);
     final leftR = size.width * 0.38;
-    paint.shader = RadialGradient(
+    _gradientPaint.shader = RadialGradient(
       colors: [const Color(0xFF8a50dc).withValues(alpha: 0.22), Colors.transparent],
     ).createShader(Rect.fromCircle(center: leftCenter, radius: leftR));
-    canvas.drawCircle(leftCenter, leftR, paint);
+    canvas.drawCircle(leftCenter, leftR, _gradientPaint);
 
     // Right teal orb
     final rightCenter = Offset(size.width * 0.84, size.height * 0.22);
     final rightR = size.width * 0.32;
-    paint.shader = RadialGradient(
+    _gradientPaint.shader = RadialGradient(
       colors: [const Color(0xFF2dd2be).withValues(alpha: 0.18), Colors.transparent],
     ).createShader(Rect.fromCircle(center: rightCenter, radius: rightR));
-    canvas.drawCircle(rightCenter, rightR, paint);
+    canvas.drawCircle(rightCenter, rightR, _gradientPaint);
 
     // Subtle center orb
     final midCenter = Offset(size.width * 0.50, size.height * 0.38);
     final midR = size.width * 0.42;
-    paint.shader = RadialGradient(
+    _gradientPaint.shader = RadialGradient(
       colors: [const Color(0xFF8a50dc).withValues(alpha: 0.10), Colors.transparent],
     ).createShader(Rect.fromCircle(center: midCenter, radius: midR));
-    canvas.drawCircle(midCenter, midR, paint);
+    canvas.drawCircle(midCenter, midR, _gradientPaint);
   }
 
   void _drawDustParticles(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
     // (xFraction, yFraction, radius, isPurple)
     const dots = [
       (0.15, 0.07, 1.5, true),  (0.34, 0.11, 1.0, false),
@@ -90,11 +90,11 @@ class _ArcaneLibraryPainter extends CustomPainter {
       (0.85, 0.31, 2.5, true),  (0.22, 0.34, 1.5, false),
     ];
     for (final d in dots) {
-      paint.color = (d.$4
+      _dustPaint.color = (d.$4
           ? const Color(0xFF8a50dc)
           : const Color(0xFF2dd2be))
           .withValues(alpha: 0.45);
-      canvas.drawCircle(Offset(size.width * d.$1, size.height * d.$2), d.$3, paint);
+      canvas.drawCircle(Offset(size.width * d.$1, size.height * d.$2), d.$3, _dustPaint);
     }
   }
 
@@ -118,31 +118,29 @@ class _ArcaneLibraryPainter extends CustomPainter {
     const ws = [14.0, 10.0, 16.0, 12.0, 18.0, 11.0, 15.0, 13.0, 17.0, 12.0];
     const hs = [0.85, 0.65, 0.95, 0.55, 0.80, 0.70, 0.90, 0.60, 0.75, 0.72];
 
-    final paint = Paint()..style = PaintingStyle.fill;
     var x = 0.0;
     var i = 0;
     while (x < size.width) {
       final idx = i % ws.length;
-      paint.color = colors[i % colors.length];
+      _shelfPaint.color = colors[i % colors.length];
       final h = maxH * hs[idx];
-      canvas.drawRect(Rect.fromLTWH(x + 0.5, baseY - h, ws[idx] - 1, h), paint);
+      canvas.drawRect(Rect.fromLTWH(x + 0.5, baseY - h, ws[idx] - 1, h), _shelfPaint);
       x += ws[idx] + 1;
       i++;
     }
     // Shelf baseline
-    paint.color = colors[0];
-    canvas.drawRect(Rect.fromLTWH(0, baseY, size.width, 2), paint);
+    _shelfPaint.color = colors[0];
+    canvas.drawRect(Rect.fromLTWH(0, baseY, size.width, 2), _shelfPaint);
   }
 
   void _drawVignette(Canvas canvas, Size size) {
     final vignetteRect = Rect.fromLTWH(0, size.height * 0.78, size.width, size.height * 0.22);
-    final paint = Paint()
-      ..shader = const LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [Colors.transparent, Color(0xFF08040f)],
-      ).createShader(vignetteRect);
-    canvas.drawRect(vignetteRect, paint);
+    _gradientPaint.shader = const LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [Colors.transparent, Color(0xFF08040f)],
+    ).createShader(vignetteRect);
+    canvas.drawRect(vignetteRect, _gradientPaint);
   }
 
   @override
