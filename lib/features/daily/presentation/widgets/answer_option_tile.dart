@@ -44,7 +44,7 @@ class AnswerOptionTile extends StatelessWidget {
 
   Color get _borderColor {
     if (!_isFeedbackPhase) {
-      return Colors.white.withValues(alpha: 0.15);
+      return AppColors.primary.withValues(alpha: 0.3);
     }
     if (_isCorrect) return AppColors.correct.withValues(alpha: 0.8);
     if (_isWrong) return AppColors.wrong.withValues(alpha: 0.8);

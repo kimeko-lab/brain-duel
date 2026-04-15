@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/widgets/background/sky_background.dart';
+import '../../../core/widgets/background/arcane_library_background.dart';
 import '../domain/providers/question_providers.dart';
 import '../domain/state/daily_classic_state.dart';
 import 'widgets/answer_option_tile.dart';
@@ -73,7 +73,7 @@ class _DailyClassicGameScreenState
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: SkyBackground(
+      body: ArcaneLibraryBackground(
         child: SafeArea(
           child: _buildBody(context, state),
         ),
