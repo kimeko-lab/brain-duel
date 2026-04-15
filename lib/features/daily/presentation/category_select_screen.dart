@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
-import '../../../core/widgets/background/sky_background.dart';
+import '../../../core/widgets/background/arcane_library_background.dart';
 import 'widgets/category_grid_item.dart';
 
 // ---------------------------------------------------------------------------
@@ -43,16 +43,27 @@ class CategorySelectScreen extends ConsumerWidget {
         elevation: 0,
         title: const Text('Daily Classic'),
       ),
-      body: SkyBackground(
+      body: ArcaneLibraryBackground(
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Choose a category',
-                  style: AppTypography.headlineLarge,
+                ShaderMask(
+                  shaderCallback: (bounds) => const LinearGradient(
+                    colors: [Color(0xFFe8d8ff), AppColors.primary],
+                  ).createShader(bounds),
+                  blendMode: BlendMode.srcIn,
+                  child: const Text(
+                    'Choose a category',
+                    style: TextStyle(
+                      fontFamily: 'Fraunces',
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.xl),
                 Expanded(

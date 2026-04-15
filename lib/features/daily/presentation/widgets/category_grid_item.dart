@@ -90,7 +90,15 @@ class _GlassTileState extends State<_GlassTile> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(widget.icon, size: 36, color: AppColors.primary),
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  gradient: AppColors.primaryGradient,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(widget.icon, size: 28, color: AppColors.mountainNear),
+              ),
               const SizedBox(height: AppSpacing.sm),
               Text(
                 widget.label,
