@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-import '../theme/arcane_theme.dart';
+import '../theme/app_colors.dart';
+import 'background/arcane_library_background.dart';
 
 /// The persistent app shell that wraps all tab screens.
 /// Uses [StatefulNavigationShell] from go_router's StatefulShellRoute.
@@ -39,27 +39,16 @@ class AppShell extends StatelessWidget {
     final activeVisualIndex =
         _visualForBranchIndex[navigationShell.currentIndex];
 
-    return Stack(
-      children: [
-        // Full-screen background gradient
-        Positioned.fill(
-          child: Container(
-            decoration: const BoxDecoration(
-              gradient: ArcaneGradients.background,
-            ),
+    return ArcaneLibraryBackground(
+      child: Column(
+        children: [
+          Expanded(child: navigationShell),
+          _ArcaneBottomNav(
+            activeIndex: activeVisualIndex,
+            onTap: _onTabTap,
           ),
-        ),
-        // Shell content + bottom nav
-        Column(
-          children: [
-            Expanded(child: navigationShell),
-            _ArcaneBottomNav(
-              activeIndex: activeVisualIndex,
-              onTap: _onTabTap,
-            ),
-          ],
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -89,10 +78,10 @@ class _ArcaneBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     return Container(
-      decoration: const BoxDecoration(
-        color: ArcaneColors.navBg,
+      decoration: BoxDecoration(
+        color: AppColors.mountainGround.withValues(alpha: 0.95),
         border: Border(
-          top: BorderSide(color: ArcaneColors.borderSubtle, width: 1),
+          top: BorderSide(color: AppColors.borderSubtle, width: 1),
         ),
       ),
       padding: EdgeInsets.only(
@@ -154,16 +143,10 @@ class _NavItem extends StatelessWidget {
               height: 3,
               margin: const EdgeInsets.only(bottom: 5),
               decoration: BoxDecoration(
-                gradient: isActive ? ArcaneGradients.primaryCta : null,
-                color: isActive ? null : Colors.transparent,
+                color: isActive ? AppColors.primary : Colors.transparent,
                 borderRadius: BorderRadius.circular(2),
                 boxShadow: isActive
-                    ? [
-                        BoxShadow(
-                          color: ArcaneColors.primaryGlow,
-                          blurRadius: 6,
-                        )
-                      ]
+                    ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.5), blurRadius: 6)]
                     : [],
               ),
             ),
@@ -171,17 +154,18 @@ class _NavItem extends StatelessWidget {
             Icon(
               isActive ? data.activeIcon : data.icon,
               size: 24,
-              color: isActive ? ArcaneColors.navActive : ArcaneColors.navInactive,
+              color: isActive ? AppColors.primary : AppColors.textTertiary,
             ),
             const SizedBox(height: 3),
             // Label
             Text(
               data.label,
               style: TextStyle(
+                fontFamily: 'Inter',
                 fontSize: 9,
                 letterSpacing: 0.5,
-                fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-                color: isActive ? ArcaneColors.navActive : ArcaneColors.navInactive,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                color: isActive ? AppColors.primary : AppColors.textTertiary,
               ),
             ),
           ],
