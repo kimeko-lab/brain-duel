@@ -8,8 +8,8 @@ void main() {
     await tester.pumpWidget(const ProviderScope(child: BrainDuelApp()));
     await tester.pump(const Duration(seconds: 1));
 
-    // New HomeScreen shows 'BRAIN DUEL' hero title and 'CLASSIC' mode button
-    expect(find.text('BRAIN DUEL'), findsOneWidget);
-    expect(find.text('CLASSIC'), findsOneWidget);
+    // HomeScreen shows 'Brain Duel' title and 'Classic' mode button
+    expect(find.text('Brain Duel'), findsOneWidget);
+    expect(find.text('Classic'), findsOneWidget);
   });
 }

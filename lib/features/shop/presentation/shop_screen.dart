@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/arcane_theme.dart';
 
 class ShopScreen extends StatelessWidget {
@@ -16,9 +15,9 @@ class ShopScreen extends StatelessWidget {
             children: [
               const Icon(Icons.storefront_rounded, color: ArcaneColors.navActive, size: 56),
               const SizedBox(height: 16),
-              Text('SHOP', style: GoogleFonts.orbitron(color: ArcaneColors.textPrimary, fontSize: 20, fontWeight: FontWeight.w700)),
+              const Text('SHOP', style: TextStyle(fontFamily: 'Fraunces', color: ArcaneColors.textPrimary, fontSize: 20, fontWeight: FontWeight.w700)),
               const SizedBox(height: 8),
-              const Text('Coming Soon', style: TextStyle(color: ArcaneColors.textMuted, fontSize: 14)),
+              const Text('Coming Soon', style: TextStyle(fontFamily: 'Inter', color: ArcaneColors.textMuted, fontSize: 14)),
             ],
           ),
         ),
