@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/widgets/background/sky_background.dart';
+import '../../../core/widgets/background/arcane_library_background.dart';
 import '../../daily/presentation/widgets/crystal_reward_widget.dart';
 
 class RushResultScreen extends StatelessWidget {
@@ -24,7 +24,7 @@ class RushResultScreen extends StatelessWidget {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: SkyBackground(
+      body: ArcaneLibraryBackground(
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),

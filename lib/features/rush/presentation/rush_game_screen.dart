@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/widgets/background/sky_background.dart';
+import '../../../core/widgets/background/arcane_library_background.dart';
 import '../../daily/domain/state/daily_classic_state.dart';
 import '../../daily/presentation/widgets/answer_option_tile.dart';
 import '../../daily/presentation/widgets/question_card.dart';
@@ -74,7 +74,7 @@ class _RushGameScreenState extends ConsumerState<RushGameScreen> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: SkyBackground(
+      body: ArcaneLibraryBackground(
         child: SafeArea(
           child: _buildBody(context, state),
         ),
