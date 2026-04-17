@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:brain_duel/features/daily/presentation/category_select_screen.dart';
-import 'package:brain_duel/features/daily/presentation/widgets/category_grid_item.dart';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -23,6 +22,10 @@ Widget _buildWithRouter({required String initialLocation}) {
       GoRoute(
         path: '/daily/game/:category',
         builder: (context, state) => const Scaffold(body: Text('game')),
+      ),
+      GoRoute(
+        path: '/',
+        builder: (context, state) => const Scaffold(body: Text('home')),
       ),
     ],
   );
@@ -47,7 +50,16 @@ void main() {
     );
     await tester.pump(const Duration(seconds: 1));
 
-    expect(find.byType(CategoryGridItem), findsNWidgets(5));
+    // Each category card shows its name as text.
+    for (final name in [
+      'Science',
+      'Geography',
+      'History',
+      'Sport',
+      'Entertainment',
+    ]) {
+      expect(find.text(name), findsOneWidget);
+    }
   });
 
   testWidgets('tapping a category navigates to game screen', (tester) async {
@@ -61,13 +73,8 @@ void main() {
     );
     await tester.pump(const Duration(seconds: 1));
 
-    // warnIfMissed: false — the slide animation keeps the widget at a
-    // fractional translation offset; the tap hit-test lands on the underlying
-    // tile even so, and go_router receives the event without errors.
-    await tester.tap(
-      find.byType(CategoryGridItem).first,
-      warnIfMissed: false,
-    );
+    // Tap the first visible category tile ("Science").
+    await tester.tap(find.text('Science'), warnIfMissed: false);
     await tester.pump(const Duration(milliseconds: 100));
     // No crash = navigation was triggered successfully.
   });

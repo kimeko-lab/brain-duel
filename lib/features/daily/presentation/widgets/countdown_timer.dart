@@ -2,13 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
-
-/// Counts down from 10.0 to 0.0 seconds and calls [onExpired] when it hits 0.
+/// Full-width progress bar + time label countdown.
 ///
-/// Pauses automatically when [isActive] is false (e.g. during showingFeedback).
-/// Resets when the widget is recreated (i.e. when a new question begins).
+/// Counts down from 10.0 → 0.0 s and calls [onExpired] when it hits 0.
+/// Pauses automatically when [isActive] is false (showingFeedback phase).
+/// Resets when recreated with a new key (i.e. new question begins).
 class CountdownTimer extends StatefulWidget {
   const CountdownTimer({
     super.key,
@@ -25,30 +23,25 @@ class CountdownTimer extends StatefulWidget {
 
 class _CountdownTimerState extends State<CountdownTimer> {
   static const double _startSeconds = 10.0;
-  static const int _tickMs = 100;
+  static const int    _tickMs       = 100;
 
   double _remaining = _startSeconds;
   Timer? _timer;
-  bool _expired = false;
+  bool   _expired  = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && widget.isActive) {
-        _startTimer();
-      }
+      if (mounted && widget.isActive) _startTimer();
     });
   }
 
   @override
   void didUpdateWidget(CountdownTimer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!oldWidget.isActive && widget.isActive) {
-      _startTimer();
-    } else if (oldWidget.isActive && !widget.isActive) {
-      _pauseTimer();
-    }
+    if (!oldWidget.isActive && widget.isActive)  _startTimer();
+    if ( oldWidget.isActive && !widget.isActive) _pauseTimer();
   }
 
   void _startTimer() {
@@ -65,10 +58,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
   }
 
   void _onTick(Timer timer) {
-    if (!mounted) {
-      timer.cancel();
-      return;
-    }
+    if (!mounted) { timer.cancel(); return; }
     setState(() {
       _remaining -= _tickMs / 1000.0;
       if (_remaining <= 0) {
@@ -89,25 +79,49 @@ class _CountdownTimerState extends State<CountdownTimer> {
     super.dispose();
   }
 
-  Color get _timerColor {
-    if (_remaining > 3.0) return AppColors.correct;
-    if (_remaining >= 1.0) return AppColors.warning;
-    return AppColors.wrong;
+  // ── Colors ─────────────────────────────────────────────────────────────────
+
+  Color get _barColor {
+    if (_remaining > 5.0) return const Color(0xFF00D084); // green
+    if (_remaining > 3.0) return const Color(0xFFFACC15); // yellow
+    return const Color(0xFFFF6B6B);                        // red
   }
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      '${_remaining.toStringAsFixed(1)}s',
-      style: AppTypography.headlineMedium.copyWith(
-        color: _timerColor,
-        shadows: [
-          Shadow(
-            color: _timerColor.withValues(alpha: 0.5),
-            blurRadius: 12,
+    final progress = _remaining / _startSeconds;
+
+    return Row(
+      children: [
+        // Progress bar — fills available width
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 7,
+              backgroundColor: Colors.white.withValues(alpha: 0.08),
+              valueColor: AlwaysStoppedAnimation<Color>(_barColor),
+            ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 10),
+        // Time label — fixed width prevents layout shift
+        SizedBox(
+          width: 38,
+          child: Text(
+            '${_remaining.toStringAsFixed(1)}s',
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: _barColor,
+              height: 1.0,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
