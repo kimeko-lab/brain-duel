@@ -1671,30 +1671,29 @@ class _DrawRevealDialog extends StatefulWidget {
 
 class _DrawRevealDialogState extends State<_DrawRevealDialog>
     with TickerProviderStateMixin {
-  // Master controller: 3200ms — covers the full book→card reveal sequence
+  // ── Controllers ─────────────────────────────────────────────────────────────
+  // Phase 1 (3200ms): book shake → flash → card spin-in from distance
   late final AnimationController _master;
-  // Float controller: repeating — starts after master completes
+  // Phase 2 (1400ms): burn reveal card face from bottom-to-top + labels
+  late final AnimationController _burnCtrl;
+  // Phase 3 (2400ms repeating): gentle float after reveal complete
   late final AnimationController _floatCtrl;
 
-  // ── Book shake (X-axis oscillation) ────────────────────────────────────────
+  // ── Master animations ────────────────────────────────────────────────────────
   late final Animation<double> _bookShakeX;
-
-  // ── Glow pulse behind book ──────────────────────────────────────────────────
   late final Animation<double> _glowOpacity;
-
-  // ── White flash transition ──────────────────────────────────────────────────
   late final Animation<double> _flashOpacity;
-
-  // ── Card entrance ──────────────────────────────────────────────────────────
   late final Animation<double> _cardScale;
   late final Animation<double> _cardRotY;
   late final Animation<double> _cardOpacity;
 
-  // ── Labels ──────────────────────────────────────────────────────────────────
+  // ── Burn animations (Phase 2) ────────────────────────────────────────────────
+  // 0 = card fully covered by mask; 1 = fully revealed
+  late final Animation<double> _burnReveal;
   late final Animation<double> _labelOpacity;
   late final Animation<double> _hintOpacity;
 
-  // ── Float (post-reveal) ─────────────────────────────────────────────────────
+  // ── Float ────────────────────────────────────────────────────────────────────
   late final Animation<double> _floatY;
 
   bool _canDismiss = false;
@@ -1711,7 +1710,7 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
     switch (widget.drawType) {
       case _DrawType.silver: return Icons.menu_book_rounded;
       case _DrawType.gold:   return Icons.auto_stories_rounded;
-      case _DrawType.event:  return Icons.star_rounded;
+      case _DrawType.event:  return Icons.local_library_rounded;
     }
   }
 
@@ -1723,37 +1722,40 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
       vsync: this,
       duration: const Duration(milliseconds: 3200),
     );
-
+    _burnCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    );
     _floatCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2400),
     );
 
-    // Book shake: TweenSequence oscillation — interval 0.00–0.28
+    // Book shake: dampened oscillation — interval 0.00–0.28
     _bookShakeX = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0, end: -12), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: -12, end: 12), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 12, end: -10), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: -10, end: 10), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 10, end: -7), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: -7, end: 7), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 7, end: 0), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: -12.0), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -12.0, end: 12.0), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 12.0, end: -10.0), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -10.0, end: 10.0), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 10.0, end: -7.0),  weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -7.0,  end: 7.0),  weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 7.0,   end: 0.0),  weight: 1),
     ]).animate(CurvedAnimation(
       parent: _master,
       curve: const Interval(0.00, 0.28),
     ));
 
-    // Glow opacity: 0 → 1 → 0 — interval 0.03–0.50
+    // Glow: 0 → hold → 0 — interval 0.03–0.50
     _glowOpacity = TweenSequence<double>([
       TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 1),
-      TweenSequenceItem(tween: ConstantTween(1.0), weight: 2),
+      TweenSequenceItem(tween: ConstantTween(1.0),           weight: 2),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 1),
     ]).animate(CurvedAnimation(
       parent: _master,
       curve: const Interval(0.03, 0.50),
     ));
 
-    // Flash: 0 → 1 → 0 — interval 0.30–0.46
+    // White flash — interval 0.30–0.46
     _flashOpacity = TweenSequence<double>([
       TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 1),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 1),
@@ -1762,7 +1764,7 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
       curve: const Interval(0.30, 0.46),
     ));
 
-    // Card scale: 0.03 → 1.0, easeOutQuart — interval 0.44–0.88
+    // Card zoom-in — interval 0.44–0.88
     _cardScale = Tween<double>(begin: 0.03, end: 1.0).animate(
       CurvedAnimation(
         parent: _master,
@@ -1770,7 +1772,7 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
       ),
     );
 
-    // Card rotation Y: π*4.5 → 0, easeOutCubic — interval 0.44–0.85
+    // Card spin — interval 0.44–0.85
     _cardRotY = Tween<double>(begin: math.pi * 4.5, end: 0.0).animate(
       CurvedAnimation(
         parent: _master,
@@ -1778,7 +1780,7 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
       ),
     );
 
-    // Card opacity: 0 → 1 — interval 0.44–0.54
+    // Card fade-in — interval 0.44–0.54
     _cardOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _master,
@@ -1786,39 +1788,50 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
       ),
     );
 
-    // Label opacity — interval 0.85–0.94
+    // Burn mask: 0 = fully covered, 1 = fully revealed — interval 0.00–0.82
+    _burnReveal = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _burnCtrl,
+        curve: const Interval(0.00, 0.82, curve: Curves.easeInOut),
+      ),
+    );
+
+    // Labels fade-in during burn — interval 0.55–0.88
     _labelOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
-        parent: _master,
-        curve: const Interval(0.85, 0.94, curve: Curves.easeOut),
+        parent: _burnCtrl,
+        curve: const Interval(0.55, 0.88, curve: Curves.easeOut),
       ),
     );
 
-    // Hint opacity — interval 0.95–1.00
+    // Hint fade-in at end — interval 0.90–1.00
     _hintOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
-        parent: _master,
-        curve: const Interval(0.95, 1.00, curve: Curves.easeOut),
+        parent: _burnCtrl,
+        curve: const Interval(0.90, 1.00, curve: Curves.easeOut),
       ),
     );
 
-    // Float Y: -8 → 8, repeating
+    // Float: ±8px, repeating
     _floatY = Tween<double>(begin: -8.0, end: 8.0).animate(
       CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOut),
     );
 
-    // Start master, then begin float loop when done
+    // Sequence: master → burnCtrl → float + canDismiss
     _master.forward().then((_) {
-      if (mounted) {
+      if (!mounted) return;
+      _burnCtrl.forward().then((_) {
+        if (!mounted) return;
         setState(() => _canDismiss = true);
         _floatCtrl.repeat(reverse: true);
-      }
+      });
     });
   }
 
   @override
   void dispose() {
     _master.dispose();
+    _burnCtrl.dispose();
     _floatCtrl.dispose();
     super.dispose();
   }
@@ -1832,7 +1845,7 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
       child: Material(
         color: Colors.black.withValues(alpha: 0.88),
         child: AnimatedBuilder(
-          animation: Listenable.merge([_master, _floatCtrl]),
+          animation: Listenable.merge([_master, _burnCtrl, _floatCtrl]),
           builder: (context, _) {
             final masterVal = _master.value;
             final showBook  = masterVal < 0.46;
@@ -1841,7 +1854,7 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
             return Stack(
               alignment: Alignment.center,
               children: [
-                // ── Radial glow background ──────────────────────────────────
+                // ── Radial glow (book phase) ────────────────────────────────
                 if (showBook)
                   Opacity(
                     opacity: _glowOpacity.value.clamp(0.0, 1.0),
@@ -1860,7 +1873,7 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
                     ),
                   ),
 
-                // ── Book phase ────────────────────────────────────────────
+                // ── Book ──────────────────────────────────────────────────
                 if (showBook)
                   Transform.translate(
                     offset: Offset(_bookShakeX.value, 0),
@@ -1898,42 +1911,59 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
                     ),
                   ),
 
-                // ── Card phase ────────────────────────────────────────────
+                // ── Card + burn reveal ────────────────────────────────────
                 if (showCard)
                   Opacity(
                     opacity: _cardOpacity.value.clamp(0.0, 1.0),
                     child: Transform.translate(
-                      offset: Offset(
-                        0,
-                        _canDismiss ? _floatY.value : 0,
-                      ),
-                      child: AbsorbPointer(
-                        absorbing: !_canDismiss,
-                        child: Transform(
-                          alignment: Alignment.center,
-                          transform: Matrix4.identity()
-                            ..setEntry(3, 2, 0.0012)
-                            ..rotateY(_cardRotY.value)
-                            ..scaleByDouble(
-                                _cardScale.value,
-                                _cardScale.value,
-                                _cardScale.value,
-                                1.0,
+                      offset: Offset(0, _canDismiss ? _floatY.value : 0),
+                      child: Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.identity()
+                          ..setEntry(3, 2, 0.0012)
+                          ..rotateY(_cardRotY.value)
+                          ..scaleByDouble(
+                            _cardScale.value,
+                            _cardScale.value,
+                            _cardScale.value,
+                            1.0,
+                          ),
+                        child: SizedBox(
+                          width: 180,
+                          height: 180 / 0.68,
+                          child: Stack(
+                            children: [
+                              // Card (front face: question + answer)
+                              AbsorbPointer(
+                                absorbing: !_canDismiss,
+                                child: KnowledgeCardWidget(
+                                  card: widget.resultCard,
+                                  key: ValueKey(widget.resultCard.id),
+                                ),
                               ),
-                          child: SizedBox(
-                            width: 180,
-                            height: 180 / 0.68,
-                            child: KnowledgeCardWidget(
-                              card: widget.resultCard,
-                              key: ValueKey(widget.resultCard.id),
-                            ),
+                              // Burn mask: covers card top-down, sweeps up as
+                              // burnReveal 0→1 (bottom is revealed first)
+                              if (_burnReveal.value < 1.0)
+                                Positioned.fill(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: CustomPaint(
+                                      painter: _BurnRevealPainter(
+                                        progress: _burnReveal.value,
+                                        glowColor:
+                                            widget.resultCard.rarity.color,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                       ),
                     ),
                   ),
 
-                // ── Labels (below card) ───────────────────────────────────
+                // ── Labels ────────────────────────────────────────────────
                 if (showCard)
                   Positioned(
                     bottom: 80,
@@ -1976,7 +2006,7 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
                     ),
                   ),
 
-                // ── Tap to continue hint ──────────────────────────────────
+                // ── Hint ──────────────────────────────────────────────────
                 Positioned(
                   bottom: 40,
                   child: Opacity(
@@ -2010,5 +2040,68 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
       ),
     );
   }
+}
+
+// ─── Burn Reveal Painter ──────────────────────────────────────────────────────
+
+/// Paints a top-down dark mask that recedes upward as [progress] goes 0→1,
+/// creating the illusion of fire burning from the bottom of the card upward.
+/// A glowing edge (rarity color) at the burn frontier completes the effect.
+class _BurnRevealPainter extends CustomPainter {
+  const _BurnRevealPainter({
+    required this.progress,
+    required this.glowColor,
+  });
+
+  /// 0 = card fully masked; 1 = card fully revealed.
+  final double progress;
+  final Color glowColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (progress >= 1.0) return;
+
+    // The frontier (burn line) moves from bottom → top as progress 0→1.
+    // At progress 0: frontier at size.height (bottom), whole card masked.
+    // At progress 1: frontier at 0 (top), nothing masked.
+    final frontierY = (1.0 - progress) * size.height;
+
+    // ── Solid mask above the frontier ──────────────────────────────────────
+    if (frontierY > 0) {
+      canvas.drawRect(
+        Rect.fromLTWH(0, 0, size.width, frontierY),
+        Paint()..color = const Color(0xFF081518),
+      );
+    }
+
+    // ── Glowing fire edge at the frontier ──────────────────────────────────
+    const glowSpread = 36.0;
+    final glowRect = Rect.fromLTWH(
+      0,
+      (frontierY - glowSpread * 0.35).clamp(0.0, size.height),
+      size.width,
+      glowSpread,
+    );
+
+    final glowPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          glowColor.withValues(alpha: 0.0),
+          glowColor.withValues(alpha: 0.85),
+          Colors.white.withValues(alpha: 0.55),
+          glowColor.withValues(alpha: 0.45),
+          glowColor.withValues(alpha: 0.0),
+        ],
+        stops: const [0.0, 0.22, 0.44, 0.68, 1.0],
+      ).createShader(glowRect);
+
+    canvas.drawRect(glowRect, glowPaint);
+  }
+
+  @override
+  bool shouldRepaint(_BurnRevealPainter old) =>
+      old.progress != progress || old.glowColor != glowColor;
 }
 
