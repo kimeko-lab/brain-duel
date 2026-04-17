@@ -797,7 +797,7 @@ class _CardsTab extends StatelessWidget {
               Expanded(
                 child: _CardPullItem(
                   type: _PullType.silver,
-                  title: 'STANDARD\nDRAW',
+                  title: 'STANDARD DRAW',
                   subtitle: 'Random Knowledge Card',
                   rarityRange: 'Common – Rare',
                   costIcon: Icons.menu_book_rounded,
@@ -809,7 +809,7 @@ class _CardsTab extends StatelessWidget {
               Expanded(
                 child: _CardPullItem(
                   type: _PullType.gold,
-                  title: 'PREMIUM\nDRAW',
+                  title: 'PREMIUM DRAW',
                   subtitle: 'Enhanced Knowledge Card',
                   rarityRange: 'Uncommon – Unique',
                   costIcon: Icons.auto_stories_rounded,
@@ -961,30 +961,36 @@ class _CardPullItemState extends State<_CardPullItem>
 
           // ── Info + buy ─────────────────────────────────────────────────
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 14),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                // Title — single line, no wrapping
                 Text(
                   widget.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: FontWeight.w900,
                     color: Colors.white,
-                    height: 1.2,
+                    height: 1.1,
                   ),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   widget.subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: 10,
+                    fontSize: 9.5,
                     color: Color(0xFF9CA3AF),
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 5),
                 // Rarity range chip
                 Container(
                   padding:
@@ -997,7 +1003,7 @@ class _CardPullItemState extends State<_CardPullItem>
                     widget.rarityRange,
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: 9,
+                      fontSize: 8.5,
                       fontWeight: FontWeight.w600,
                       color: _glowColor,
                     ),
@@ -1005,23 +1011,29 @@ class _CardPullItemState extends State<_CardPullItem>
                 ),
                 const SizedBox(height: 12),
 
-                // Cost + Draw button
+                // Draw button — full width, centered
+                SizedBox(
+                  width: double.infinity,
+                  child: _DrawButton(color: _glowColor, label: 'DRAW'),
+                ),
+                const SizedBox(height: 7),
+
+                // Cost label — centered below button
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(widget.costIcon,
-                        size: 12, color: widget.costColor),
+                    Icon(widget.costIcon, size: 11, color: widget.costColor),
                     const SizedBox(width: 4),
                     Text(
                       widget.costLabel,
                       style: TextStyle(
                         fontFamily: 'Inter',
-                        fontSize: 10,
+                        fontSize: 9.5,
                         fontWeight: FontWeight.w600,
                         color: widget.costColor,
                       ),
                     ),
-                    const Spacer(),
-                    _DrawButton(color: _glowColor, label: 'DRAW'),
                   ],
                 ),
               ],
@@ -1375,7 +1387,7 @@ class _DrawButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [color, color.withValues(alpha: 0.75)],
@@ -1389,14 +1401,16 @@ class _DrawButton extends StatelessWidget {
           ),
         ],
       ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-          color: Colors.white,
-          shadows: [Shadow(color: Colors.black26, blurRadius: 4)],
+      child: Center(
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
+            shadows: [Shadow(color: Colors.black26, blurRadius: 4)],
+          ),
         ),
       ),
     );
