@@ -348,65 +348,66 @@ class _HeaderPatternPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Dark header base — draw background fill
+    // ── Hard clip to header bounds (prevents overflow) ────────────────────
+    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    // Dark header base
     canvas.drawRect(
       Rect.fromLTWH(0, 0, size.width, size.height),
       Paint()..color = const Color(0xFF081C20),
     );
 
+    // Base paint — bumped opacity for clear visibility
     final p = Paint()
-      ..color = _tint.withValues(alpha: 0.08)
+      ..color = _tint.withValues(alpha: 0.22)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.75
+      ..strokeWidth = 1.0
       ..strokeCap = StrokeCap.round;
 
     switch (category) {
-      case 'science':
-        _paintScience(canvas, size, p);
-      case 'geography':
-        _paintGeography(canvas, size, p);
-      case 'history':
-        _paintHistory(canvas, size, p);
-      case 'sport':
-        _paintSport(canvas, size, p);
-      case 'entertainment':
-        _paintEntertainment(canvas, size, p);
-      case 'events':
-        _paintAnime(canvas, size, p);
-      default:
-        _paintHistory(canvas, size, p);
+      case 'science':       _paintScience(canvas, size, p);
+      case 'geography':     _paintGeography(canvas, size, p);
+      case 'history':       _paintHistory(canvas, size, p);
+      case 'sport':         _paintSport(canvas, size, p);
+      case 'entertainment': _paintEntertainment(canvas, size, p);
+      case 'events':        _paintAnime(canvas, size, p);
+      default:              _paintHistory(canvas, size, p);
     }
   }
 
   // ── Science: hexagonal molecular grid ────────────────────────────────────
 
   void _paintScience(Canvas canvas, Size size, Paint p) {
-    const r = 8.5;
-    const w = r * 1.732; // sqrt(3)·r
-    const h = r * 1.5;
-    final cols = (size.width / w).ceil() + 2;
+    const r   = 9.0;
+    const w   = r * 1.732; // sqrt(3)·r  — horizontal spacing
+    const h   = r * 1.5;   // vertical spacing
+    final cols = (size.width  / w).ceil() + 2;
     final rows = (size.height / h).ceil() + 2;
 
+    // Hex outlines
+    p
+      ..color       = _tint.withValues(alpha: 0.22)
+      ..strokeWidth = 1.0;
     for (int row = -1; row < rows; row++) {
       for (int col = -1; col < cols; col++) {
-        final xOff = (row.isOdd) ? w / 2 : 0.0;
-        _hexPath(canvas, col * w + xOff, row * h, r, p);
+        final xOff = row.isOdd ? w / 2 : 0.0;
+        _drawHex(canvas, col * w + xOff, row * h, r, p);
       }
     }
 
-    // Small nucleus dots at hex centers (fill)
-    final dotPaint = Paint()
-      ..color = _tint.withValues(alpha: 0.10)
+    // Filled nucleus dots at each hex centre
+    final dot = Paint()
+      ..color = _tint.withValues(alpha: 0.35)
       ..style = PaintingStyle.fill;
     for (int row = -1; row < rows; row++) {
       for (int col = -1; col < cols; col++) {
-        final xOff = (row.isOdd) ? w / 2 : 0.0;
-        canvas.drawCircle(Offset(col * w + xOff, row * h), 1.2, dotPaint);
+        final xOff = row.isOdd ? w / 2 : 0.0;
+        canvas.drawCircle(Offset(col * w + xOff, row * h), 1.6, dot);
       }
     }
   }
 
-  void _hexPath(Canvas canvas, double cx, double cy, double r, Paint p) {
+  void _drawHex(Canvas canvas, double cx, double cy, double r, Paint p) {
     final path = Path();
     for (int i = 0; i < 6; i++) {
       final a = (i * 60 - 30) * math.pi / 180;
@@ -421,24 +422,27 @@ class _HeaderPatternPainter extends CustomPainter {
   // ── Geography: globe meridian + parallel arcs ─────────────────────────────
 
   void _paintGeography(Canvas canvas, Size size, Paint p) {
-    // Latitude parallels — gentle horizontal S-curves
+    // Latitude parallels
+    p
+      ..color       = _tint.withValues(alpha: 0.20)
+      ..strokeWidth = 1.0;
     const lats = 6;
     for (int i = 0; i <= lats; i++) {
       final y = (i / lats) * size.height;
       final path = Path()..moveTo(0, y);
       path.cubicTo(
-        size.width * 0.28, y - size.height * 0.09,
-        size.width * 0.72, y + size.height * 0.09,
+        size.width * 0.28, y - size.height * 0.10,
+        size.width * 0.72, y + size.height * 0.10,
         size.width, y,
       );
       canvas.drawPath(path, p);
     }
 
-    // Longitude meridians — vertical curved lines
+    // Longitude meridians
     const lons = 5;
     for (int i = 1; i < lons; i++) {
-      final x = (i / lons) * size.width;
-      final bend = size.width * 0.06;
+      final x    = (i / lons) * size.width;
+      final bend = size.width * 0.07;
       final path = Path()..moveTo(x, 0);
       path.cubicTo(
         x - bend, size.height * 0.25,
@@ -448,37 +452,44 @@ class _HeaderPatternPainter extends CustomPainter {
       canvas.drawPath(path, p);
     }
 
-    // Equator highlight (slightly stronger)
-    final eqPaint = Paint()
-      ..color = _tint.withValues(alpha: 0.14)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0;
-    final eq = size.height / 2;
+    // Equator — thicker accent line
+    final eq     = size.height / 2;
     final eqPath = Path()..moveTo(0, eq);
     eqPath.cubicTo(
-      size.width * 0.28, eq - size.height * 0.09,
-      size.width * 0.72, eq + size.height * 0.09,
+      size.width * 0.28, eq - size.height * 0.10,
+      size.width * 0.72, eq + size.height * 0.10,
       size.width, eq,
     );
-    canvas.drawPath(eqPath, eqPaint);
+    canvas.drawPath(
+      eqPath,
+      Paint()
+        ..color       = _tint.withValues(alpha: 0.45)
+        ..style       = PaintingStyle.stroke
+        ..strokeWidth = 1.6,
+    );
   }
 
   // ── History: diagonal parchment hatching ──────────────────────────────────
 
   void _paintHistory(Canvas canvas, Size size, Paint p) {
-    const spacing = 8.5;
-    final diag = size.height;
+    const spacing = 8.0;
+    final diag    = size.height;
+
+    // Primary diagonal (top-left → bottom-right)
+    p
+      ..color       = _tint.withValues(alpha: 0.22)
+      ..strokeWidth = 1.0;
     for (double x = -diag; x < size.width + diag; x += spacing) {
       canvas.drawLine(Offset(x, 0), Offset(x + diag, size.height), p);
     }
-    // Cross-hatch at 50% opacity for depth
+
+    // Counter diagonal — sparser, lighter cross-hatch
     final p2 = Paint()
-      ..color = _tint.withValues(alpha: 0.04)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.5;
+      ..color       = _tint.withValues(alpha: 0.10)
+      ..style       = PaintingStyle.stroke
+      ..strokeWidth = 0.7;
     for (double x = -diag; x < size.width + diag; x += spacing * 2) {
-      canvas.drawLine(
-          Offset(x + diag, 0), Offset(x, size.height), p2);
+      canvas.drawLine(Offset(x + diag, 0), Offset(x, size.height), p2);
     }
   }
 
@@ -487,80 +498,82 @@ class _HeaderPatternPainter extends CustomPainter {
   void _paintSport(Canvas canvas, Size size, Paint p) {
     const lines = 9;
     for (int i = 0; i < lines; i++) {
-      final y = (i + 0.5) / lines * size.height;
-      // Stagger start X for dynamic rhythm
-      final startX = (i % 3) * size.width * 0.07;
-      // Alternate lengths
-      final endX = (i % 2 == 0) ? size.width : size.width * 0.87;
-      p.color = _tint.withValues(alpha: i.isEven ? 0.09 : 0.05);
+      final y      = (i + 0.5) / lines * size.height;
+      final startX = (i % 3) * size.width * 0.06;
+      final endX   = (i % 2 == 0) ? size.width : size.width * 0.88;
+      // Alternate strong / subtle lines
+      p
+        ..color       = _tint.withValues(alpha: i.isEven ? 0.26 : 0.12)
+        ..strokeWidth = i.isEven ? 1.1 : 0.75;
       canvas.drawLine(Offset(startX, y), Offset(endX, y), p);
     }
 
-    // Chevron accent marks suggesting directional energy
-    p.color = _tint.withValues(alpha: 0.07);
-    p.strokeWidth = 0.9;
+    // Chevron accent marks
+    final cp = Paint()
+      ..color       = _tint.withValues(alpha: 0.32)
+      ..style       = PaintingStyle.stroke
+      ..strokeWidth = 1.4
+      ..strokeCap   = StrokeCap.round;
     for (int i = 0; i < 3; i++) {
-      final cx = size.width * (0.72 + i * 0.10);
-      final half = size.height * 0.22;
-      final mid = size.height / 2;
-      canvas.drawLine(Offset(cx - 3, mid - half), Offset(cx + 3, mid), p);
-      canvas.drawLine(Offset(cx + 3, mid), Offset(cx - 3, mid + half), p);
+      final cx   = size.width * (0.68 + i * 0.10);
+      final half = size.height * 0.24;
+      final mid  = size.height / 2;
+      canvas.drawLine(Offset(cx - 4, mid - half), Offset(cx + 4, mid), cp);
+      canvas.drawLine(Offset(cx + 4, mid), Offset(cx - 4, mid + half), cp);
     }
   }
 
-  // ── Entertainment: concentric film-reel / sound-wave rings ───────────────
+  // ── Entertainment: concentric cinema rings + film-strip edges ────────────
 
   void _paintEntertainment(Canvas canvas, Size size, Paint p) {
-    // Concentric circles from right-center (like a projector beam)
-    final cx = size.width * 0.78;
+    // Concentric circles from right-centre
+    final cx = size.width * 0.75;
     final cy = size.height / 2;
-    double r = 7.0;
-    while (r < size.width * 1.3) {
-      p.color = _tint.withValues(alpha: r < 30 ? 0.12 : 0.06);
+    double r  = 6.0;
+    while (r < size.width * 1.4) {
+      p
+        ..color       = _tint.withValues(alpha: r < 28 ? 0.38 : 0.16)
+        ..strokeWidth = r < 28 ? 1.4 : 0.9;
       canvas.drawCircle(Offset(cx, cy), r, p);
       r += 11.0;
     }
 
-    // Film-strip tick marks along top and bottom edges
-    final tickPaint = Paint()
-      ..color = _tint.withValues(alpha: 0.09)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8;
-    const tickW = 5.0;
-    const tickH = 4.0;
-    const tickSpacing = 10.0;
-    for (double x = 4; x < size.width; x += tickSpacing) {
-      // Top ticks
+    // Film-strip perforations (top + bottom edges)
+    final tick = Paint()
+      ..color       = _tint.withValues(alpha: 0.30)
+      ..style       = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+    const tickW = 5.5;
+    const tickH = 4.5;
+    const gap   = 10.0;
+    for (double x = 4; x < size.width - 4; x += gap) {
+      canvas.drawRect(Rect.fromLTWH(x, 1.5, tickW, tickH), tick);
       canvas.drawRect(
-        Rect.fromLTWH(x, 2, tickW, tickH),
-        tickPaint..style = PaintingStyle.stroke,
-      );
-      // Bottom ticks
-      canvas.drawRect(
-        Rect.fromLTWH(x, size.height - 2 - tickH, tickW, tickH),
-        tickPaint,
-      );
+          Rect.fromLTWH(x, size.height - 1.5 - tickH, tickW, tickH), tick);
     }
   }
 
-  // ── Events / Anime: manga-style radial speed lines ────────────────────────
+  // ── Events / Anime: manga radial speed lines ──────────────────────────────
 
   void _paintAnime(Canvas canvas, Size size, Paint p) {
-    // Action burst origin — top-right area
-    final ox = size.width * 0.90;
-    final oy = size.height * 0.10;
+    // Burst origin — upper-right
+    final ox = size.width  * 0.88;
+    final oy = size.height * 0.12;
 
-    const lineCount = 26;
+    const lineCount = 28;
 
     for (int i = 0; i < lineCount; i++) {
-      final t = i / (lineCount - 1);
-      // Spread across a wide arc facing the bottom-left quadrant (130° – 260°)
-      final angle = math.pi * (0.72 + t * 0.74);
-      final gap   = 5.0 + (i % 3) * 2.0;
-      final len   = 42.0 + (i % 5) * 10.0;
+      final t     = i / (lineCount - 1);
+      // Arc spread: ~130° – 265°
+      final angle = math.pi * (0.72 + t * 0.75);
+      final gap   = 4.0 + (i % 3) * 1.5;
+      final len   = 48.0 + (i % 5) * 12.0;
 
-      p.color = _tint.withValues(alpha: i.isEven ? 0.10 : 0.06);
-      p.strokeWidth = i % 4 == 0 ? 1.1 : 0.7;
+      // Every 4th line is a bold "thick" line for drama
+      final isBold = i % 4 == 0;
+      p
+        ..color       = _tint.withValues(alpha: isBold ? 0.36 : i.isEven ? 0.20 : 0.11)
+        ..strokeWidth = isBold ? 1.8 : i.isEven ? 1.1 : 0.7;
 
       canvas.drawLine(
         Offset(ox + gap * math.cos(angle), oy + gap * math.sin(angle)),
@@ -569,23 +582,31 @@ class _HeaderPatternPainter extends CustomPainter {
       );
     }
 
-    // Inner burst circle
+    // Burst origin glow dot
     canvas.drawCircle(
       Offset(ox, oy),
-      4.0,
+      5.0,
       Paint()
-        ..color = _tint.withValues(alpha: 0.18)
+        ..color = _tint.withValues(alpha: 0.55)
         ..style = PaintingStyle.fill,
     );
+    canvas.drawCircle(
+      Offset(ox, oy),
+      8.0,
+      Paint()
+        ..color       = _tint.withValues(alpha: 0.18)
+        ..style       = PaintingStyle.stroke
+        ..strokeWidth = 1.5,
+    );
 
-    // Subtle cross-hatch in background for manga screen-tone feel
-    final dotPaint = Paint()
-      ..color = _tint.withValues(alpha: 0.04)
+    // Screen-tone dot grid (manga halftone feel)
+    final dot = Paint()
+      ..color = _tint.withValues(alpha: 0.10)
       ..style = PaintingStyle.fill;
-    const ds = 6.0;
+    const ds = 5.5;
     for (double x = ds; x < size.width; x += ds) {
       for (double y = ds; y < size.height; y += ds) {
-        canvas.drawCircle(Offset(x, y), 0.7, dotPaint);
+        canvas.drawCircle(Offset(x, y), 0.8, dot);
       }
     }
   }
