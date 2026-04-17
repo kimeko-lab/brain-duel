@@ -4,19 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../data/models/knowledge_card_model.dart';
 
-// ─── Category helpers (mirrors home screen) ───────────────────────────────────
-
-List<Color> _gradientForCategory(String cat) {
-  const map = <String, List<Color>>{
-    'science':       [Color(0xFFF97316), Color(0xFFC2410C)],
-    'geography':     [Color(0xFF0EA5E9), Color(0xFF0369A1)],
-    'history':       [Color(0xFFA855F7), Color(0xFF6B21A8)],
-    'sport':         [Color(0xFF00D084), Color(0xFF008A5B)],
-    'entertainment': [Color(0xFFEC4899), Color(0xFFBE185D)],
-    'events':        [Color(0xFF7C3AED), Color(0xFF3730A3)],
-  };
-  return map[cat] ?? [const Color(0xFF00D084), const Color(0xFF008A5B)];
-}
+// ─── Category icon ────────────────────────────────────────────────────────────
 
 IconData _iconForCategory(String cat) {
   switch (cat) {
@@ -25,7 +13,7 @@ IconData _iconForCategory(String cat) {
     case 'history':       return Icons.history_edu_rounded;
     case 'sport':         return Icons.sports_rounded;
     case 'entertainment': return Icons.movie_rounded;
-    case 'events':        return Icons.celebration_rounded;
+    case 'events':        return Icons.auto_stories_rounded;
     default:              return Icons.quiz_rounded;
   }
 }
@@ -80,19 +68,15 @@ class _KnowledgeCardWidgetState extends State<KnowledgeCardWidget>
         builder: (context, _) {
           final angle   = _anim.value * math.pi;
           final isFront = _anim.value <= 0.5;
-
-          // The face we want to show
-          final face = isFront
+          final face    = isFront
               ? _FrontFace(card: widget.card)
-              : _BackFace();
-
-          // Counter-rotate the back face so it isn't mirrored
+              : const _BackFace();
           final faceAngle = isFront ? angle : angle - math.pi;
 
           return Transform(
             alignment: Alignment.center,
             transform: Matrix4.identity()
-              ..setEntry(3, 2, 0.002) // perspective
+              ..setEntry(3, 2, 0.002)
               ..rotateY(faceAngle),
             child: face,
           );
@@ -103,7 +87,7 @@ class _KnowledgeCardWidgetState extends State<KnowledgeCardWidget>
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Front face — category header + question + answer + icon footer
+// Front face
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _FrontFace extends StatelessWidget {
@@ -113,7 +97,6 @@ class _FrontFace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final gradient    = _gradientForCategory(card.category);
     final icon        = _iconForCategory(card.category);
     final rarityColor = card.rarity.color;
 
@@ -143,59 +126,8 @@ class _FrontFace extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── Header: category gradient + rarity ──────────────────────
-            Container(
-              padding: const EdgeInsets.fromLTRB(10, 7, 10, 7),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: gradient,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    card.category.toUpperCase(),
-                    style: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 7.5,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white70,
-                      letterSpacing: 1.3,
-                      height: 1.0,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Row(
-                    children: [
-                      // Filled stars only
-                      for (int i = 0; i < card.rarity.stars; i++)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 1),
-                          child: Icon(
-                            Icons.star_rounded,
-                            size: 11,
-                            color: rarityColor,
-                          ),
-                        ),
-                      const SizedBox(width: 4),
-                      Text(
-                        card.rarity.label,
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 8,
-                          fontWeight: FontWeight.w700,
-                          color: rarityColor,
-                          height: 1.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            // ── Header: category-themed pattern + rarity ─────────────────
+            _CardHeader(card: card, icon: icon, rarityColor: rarityColor),
 
             // ── Body: question + answer ───────────────────────────────────
             Expanded(
@@ -204,7 +136,6 @@ class _FrontFace extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Question
                     Expanded(
                       child: Text(
                         card.question,
@@ -220,14 +151,12 @@ class _FrontFace extends StatelessWidget {
                       ),
                     ),
 
-                    // Divider
                     Container(
                       height: 1,
                       color: const Color(0xFF2D4A4A),
                       margin: const EdgeInsets.symmetric(vertical: 6),
                     ),
 
-                    // Answer
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -260,13 +189,13 @@ class _FrontFace extends StatelessWidget {
 
             // ── Footer: category icon ────────────────────────────────────
             Container(
-              height: 42,
+              height: 38,
               color: const Color(0xFF081518),
               child: Center(
                 child: Icon(
                   icon,
-                  size: 22,
-                  color: Colors.white.withValues(alpha: 0.22),
+                  size: 20,
+                  color: Colors.white.withValues(alpha: 0.18),
                 ),
               ),
             ),
@@ -277,8 +206,396 @@ class _FrontFace extends StatelessWidget {
   }
 }
 
+// ─── Card Header ──────────────────────────────────────────────────────────────
+
+class _CardHeader extends StatelessWidget {
+  const _CardHeader({
+    required this.card,
+    required this.icon,
+    required this.rarityColor,
+  });
+
+  final KnowledgeCardModel card;
+  final IconData icon;
+  final Color rarityColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 64,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // ── Category-themed pattern ──────────────────────────────────
+          CustomPaint(
+            painter: _HeaderPatternPainter(card.category),
+          ),
+
+          // ── Watermark icon (right, large, very dim) ──────────────────
+          Positioned(
+            right: 8,
+            top: 0,
+            bottom: 0,
+            child: Center(
+              child: Icon(
+                icon,
+                size: 42,
+                color: Colors.white.withValues(alpha: 0.07),
+              ),
+            ),
+          ),
+
+          // ── Rarity + category text (left) ────────────────────────────
+          Positioned(
+            left: 10,
+            top: 9,
+            bottom: 9,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Stars — standalone row
+                _RarityStars(count: card.rarity.stars, color: rarityColor),
+
+                // Rarity label — right below stars
+                Text(
+                  card.rarity.label.toUpperCase(),
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 8.0,
+                    fontWeight: FontWeight.w800,
+                    color: rarityColor,
+                    letterSpacing: 1.4,
+                    height: 1.0,
+                    shadows: [
+                      Shadow(
+                        color: rarityColor.withValues(alpha: 0.60),
+                        blurRadius: 6,
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Category name — small, muted, at bottom
+                Text(
+                  card.category.toUpperCase(),
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 6.5,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withValues(alpha: 0.30),
+                    letterSpacing: 1.2,
+                    height: 1.0,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Rarity stars ─────────────────────────────────────────────────────────────
+
+class _RarityStars extends StatelessWidget {
+  const _RarityStars({required this.count, required this.color});
+
+  final int count;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (int i = 0; i < count; i++)
+          Padding(
+            padding: EdgeInsets.only(right: i < count - 1 ? 2.5 : 0),
+            child: Icon(
+              Icons.star_rounded,
+              size: 13.0,
+              color: color,
+              shadows: [
+                Shadow(
+                  color: color.withValues(alpha: 0.95),
+                  blurRadius: 7,
+                ),
+                Shadow(
+                  color: color.withValues(alpha: 0.40),
+                  blurRadius: 14,
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
-// Back face — Brain Duel design
+// Header pattern painters — one per category
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _HeaderPatternPainter extends CustomPainter {
+  const _HeaderPatternPainter(this.category);
+
+  final String category;
+
+  // Shared brand-teal tint for all patterns
+  static const Color _tint = Color(0xFF00D084);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Dark header base — draw background fill
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Paint()..color = const Color(0xFF081C20),
+    );
+
+    final p = Paint()
+      ..color = _tint.withValues(alpha: 0.08)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.75
+      ..strokeCap = StrokeCap.round;
+
+    switch (category) {
+      case 'science':
+        _paintScience(canvas, size, p);
+      case 'geography':
+        _paintGeography(canvas, size, p);
+      case 'history':
+        _paintHistory(canvas, size, p);
+      case 'sport':
+        _paintSport(canvas, size, p);
+      case 'entertainment':
+        _paintEntertainment(canvas, size, p);
+      case 'events':
+        _paintAnime(canvas, size, p);
+      default:
+        _paintHistory(canvas, size, p);
+    }
+  }
+
+  // ── Science: hexagonal molecular grid ────────────────────────────────────
+
+  void _paintScience(Canvas canvas, Size size, Paint p) {
+    const r = 8.5;
+    const w = r * 1.732; // sqrt(3)·r
+    const h = r * 1.5;
+    final cols = (size.width / w).ceil() + 2;
+    final rows = (size.height / h).ceil() + 2;
+
+    for (int row = -1; row < rows; row++) {
+      for (int col = -1; col < cols; col++) {
+        final xOff = (row.isOdd) ? w / 2 : 0.0;
+        _hexPath(canvas, col * w + xOff, row * h, r, p);
+      }
+    }
+
+    // Small nucleus dots at hex centers (fill)
+    final dotPaint = Paint()
+      ..color = _tint.withValues(alpha: 0.10)
+      ..style = PaintingStyle.fill;
+    for (int row = -1; row < rows; row++) {
+      for (int col = -1; col < cols; col++) {
+        final xOff = (row.isOdd) ? w / 2 : 0.0;
+        canvas.drawCircle(Offset(col * w + xOff, row * h), 1.2, dotPaint);
+      }
+    }
+  }
+
+  void _hexPath(Canvas canvas, double cx, double cy, double r, Paint p) {
+    final path = Path();
+    for (int i = 0; i < 6; i++) {
+      final a = (i * 60 - 30) * math.pi / 180;
+      final x = cx + r * math.cos(a);
+      final y = cy + r * math.sin(a);
+      i == 0 ? path.moveTo(x, y) : path.lineTo(x, y);
+    }
+    path.close();
+    canvas.drawPath(path, p);
+  }
+
+  // ── Geography: globe meridian + parallel arcs ─────────────────────────────
+
+  void _paintGeography(Canvas canvas, Size size, Paint p) {
+    // Latitude parallels — gentle horizontal S-curves
+    const lats = 6;
+    for (int i = 0; i <= lats; i++) {
+      final y = (i / lats) * size.height;
+      final path = Path()..moveTo(0, y);
+      path.cubicTo(
+        size.width * 0.28, y - size.height * 0.09,
+        size.width * 0.72, y + size.height * 0.09,
+        size.width, y,
+      );
+      canvas.drawPath(path, p);
+    }
+
+    // Longitude meridians — vertical curved lines
+    const lons = 5;
+    for (int i = 1; i < lons; i++) {
+      final x = (i / lons) * size.width;
+      final bend = size.width * 0.06;
+      final path = Path()..moveTo(x, 0);
+      path.cubicTo(
+        x - bend, size.height * 0.25,
+        x + bend, size.height * 0.75,
+        x, size.height,
+      );
+      canvas.drawPath(path, p);
+    }
+
+    // Equator highlight (slightly stronger)
+    final eqPaint = Paint()
+      ..color = _tint.withValues(alpha: 0.14)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+    final eq = size.height / 2;
+    final eqPath = Path()..moveTo(0, eq);
+    eqPath.cubicTo(
+      size.width * 0.28, eq - size.height * 0.09,
+      size.width * 0.72, eq + size.height * 0.09,
+      size.width, eq,
+    );
+    canvas.drawPath(eqPath, eqPaint);
+  }
+
+  // ── History: diagonal parchment hatching ──────────────────────────────────
+
+  void _paintHistory(Canvas canvas, Size size, Paint p) {
+    const spacing = 8.5;
+    final diag = size.height;
+    for (double x = -diag; x < size.width + diag; x += spacing) {
+      canvas.drawLine(Offset(x, 0), Offset(x + diag, size.height), p);
+    }
+    // Cross-hatch at 50% opacity for depth
+    final p2 = Paint()
+      ..color = _tint.withValues(alpha: 0.04)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.5;
+    for (double x = -diag; x < size.width + diag; x += spacing * 2) {
+      canvas.drawLine(
+          Offset(x + diag, 0), Offset(x, size.height), p2);
+    }
+  }
+
+  // ── Sport: horizontal motion speed lines ──────────────────────────────────
+
+  void _paintSport(Canvas canvas, Size size, Paint p) {
+    const lines = 9;
+    for (int i = 0; i < lines; i++) {
+      final y = (i + 0.5) / lines * size.height;
+      // Stagger start X for dynamic rhythm
+      final startX = (i % 3) * size.width * 0.07;
+      // Alternate lengths
+      final endX = (i % 2 == 0) ? size.width : size.width * 0.87;
+      p.color = _tint.withValues(alpha: i.isEven ? 0.09 : 0.05);
+      canvas.drawLine(Offset(startX, y), Offset(endX, y), p);
+    }
+
+    // Chevron accent marks suggesting directional energy
+    p.color = _tint.withValues(alpha: 0.07);
+    p.strokeWidth = 0.9;
+    for (int i = 0; i < 3; i++) {
+      final cx = size.width * (0.72 + i * 0.10);
+      final half = size.height * 0.22;
+      final mid = size.height / 2;
+      canvas.drawLine(Offset(cx - 3, mid - half), Offset(cx + 3, mid), p);
+      canvas.drawLine(Offset(cx + 3, mid), Offset(cx - 3, mid + half), p);
+    }
+  }
+
+  // ── Entertainment: concentric film-reel / sound-wave rings ───────────────
+
+  void _paintEntertainment(Canvas canvas, Size size, Paint p) {
+    // Concentric circles from right-center (like a projector beam)
+    final cx = size.width * 0.78;
+    final cy = size.height / 2;
+    double r = 7.0;
+    while (r < size.width * 1.3) {
+      p.color = _tint.withValues(alpha: r < 30 ? 0.12 : 0.06);
+      canvas.drawCircle(Offset(cx, cy), r, p);
+      r += 11.0;
+    }
+
+    // Film-strip tick marks along top and bottom edges
+    final tickPaint = Paint()
+      ..color = _tint.withValues(alpha: 0.09)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.8;
+    const tickW = 5.0;
+    const tickH = 4.0;
+    const tickSpacing = 10.0;
+    for (double x = 4; x < size.width; x += tickSpacing) {
+      // Top ticks
+      canvas.drawRect(
+        Rect.fromLTWH(x, 2, tickW, tickH),
+        tickPaint..style = PaintingStyle.stroke,
+      );
+      // Bottom ticks
+      canvas.drawRect(
+        Rect.fromLTWH(x, size.height - 2 - tickH, tickW, tickH),
+        tickPaint,
+      );
+    }
+  }
+
+  // ── Events / Anime: manga-style radial speed lines ────────────────────────
+
+  void _paintAnime(Canvas canvas, Size size, Paint p) {
+    // Action burst origin — top-right area
+    final ox = size.width * 0.90;
+    final oy = size.height * 0.10;
+
+    const lineCount = 26;
+
+    for (int i = 0; i < lineCount; i++) {
+      final t = i / (lineCount - 1);
+      // Spread across a wide arc facing the bottom-left quadrant (130° – 260°)
+      final angle = math.pi * (0.72 + t * 0.74);
+      final gap   = 5.0 + (i % 3) * 2.0;
+      final len   = 42.0 + (i % 5) * 10.0;
+
+      p.color = _tint.withValues(alpha: i.isEven ? 0.10 : 0.06);
+      p.strokeWidth = i % 4 == 0 ? 1.1 : 0.7;
+
+      canvas.drawLine(
+        Offset(ox + gap * math.cos(angle), oy + gap * math.sin(angle)),
+        Offset(ox + len * math.cos(angle), oy + len * math.sin(angle)),
+        p,
+      );
+    }
+
+    // Inner burst circle
+    canvas.drawCircle(
+      Offset(ox, oy),
+      4.0,
+      Paint()
+        ..color = _tint.withValues(alpha: 0.18)
+        ..style = PaintingStyle.fill,
+    );
+
+    // Subtle cross-hatch in background for manga screen-tone feel
+    final dotPaint = Paint()
+      ..color = _tint.withValues(alpha: 0.04)
+      ..style = PaintingStyle.fill;
+    const ds = 6.0;
+    for (double x = ds; x < size.width; x += ds) {
+      for (double y = ds; y < size.height; y += ds) {
+        canvas.drawCircle(Offset(x, y), 0.7, dotPaint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_HeaderPatternPainter old) => old.category != category;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Back face — Brain Duel card design
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _BackFace extends StatelessWidget {
@@ -310,41 +627,31 @@ class _BackFace extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         child: Stack(
           children: [
-            // Dot grid pattern
             Positioned.fill(
               child: CustomPaint(painter: _DotPatternPainter()),
             ),
-            // Corner ornaments
+            Positioned(top: 8, left: 8,  child: _CornerOrnament()),
             Positioned(
-              top: 8,
-              left: 8,
-              child: _CornerOrnament(),
-            ),
-            Positioned(
-              top: 8,
-              right: 8,
+              top: 8, right: 8,
               child: Transform.rotate(
                 angle: math.pi / 2,
                 child: _CornerOrnament(),
               ),
             ),
             Positioned(
-              bottom: 8,
-              left: 8,
+              bottom: 8, left: 8,
               child: Transform.rotate(
                 angle: -math.pi / 2,
                 child: _CornerOrnament(),
               ),
             ),
             Positioned(
-              bottom: 8,
-              right: 8,
+              bottom: 8, right: 8,
               child: Transform.rotate(
                 angle: math.pi,
                 child: _CornerOrnament(),
               ),
             ),
-            // Center content
             Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -410,7 +717,7 @@ class _DotPatternPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     const spacing = 14.0;
-    const radius = 1.2;
+    const radius  = 1.2;
 
     for (double x = spacing; x < size.width; x += spacing) {
       for (double y = spacing; y < size.height; y += spacing) {
@@ -443,7 +750,6 @@ class _CornerPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    // L-shape corner
     canvas.drawLine(Offset(0, size.height), const Offset(0, 0), paint);
     canvas.drawLine(const Offset(0, 0), Offset(size.width, 0), paint);
   }

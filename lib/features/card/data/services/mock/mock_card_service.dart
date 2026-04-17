@@ -176,5 +176,29 @@ class MockCardService {
       answer: 'Naruto Uzumaki',
       earnedAt: DateTime(2026, 4, 16),
     ),
+    KnowledgeCardModel(
+      id: 'kc_evt_002',
+      category: 'events',
+      rarity: CardRarity.uncommon,
+      question: 'In Attack on Titan, what is the organization that fights Titans outside the walls?',
+      answer: 'Survey Corps',
+      earnedAt: DateTime(2026, 4, 16),
+    ),
+    KnowledgeCardModel(
+      id: 'kc_evt_003',
+      category: 'events',
+      rarity: CardRarity.legendary,
+      question: 'Which anime features a notebook that kills anyone whose name is written in it?',
+      answer: 'Death Note',
+      earnedAt: DateTime(2026, 4, 17),
+    ),
+    KnowledgeCardModel(
+      id: 'kc_evt_004',
+      category: 'events',
+      rarity: CardRarity.unique,
+      question: 'In Dragon Ball Z, what is the name of Goku\'s most powerful Super Saiyan transformation introduced in Battle of Gods?',
+      answer: 'Super Saiyan God',
+      earnedAt: DateTime(2026, 4, 17),
+    ),
   ];
 }
