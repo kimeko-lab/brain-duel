@@ -13,8 +13,18 @@ const Color _silver       = Color(0xFFB8BABB);
 const Color _bronze       = Color(0xFFCD7F32);
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
-enum _Mode   { classic, survival, rush }
-enum _Period { daily, weekly, season }
+enum _Mode     { classic, survival, rush }
+enum _Period   { daily, weekly, season }
+enum _Category { science, geography, history, sport, entertainment }
+
+// Category metadata (matches daily/category_select_screen.dart)
+const _categoryMeta = <_Category, (String, IconData)>{
+  _Category.science:       ('Science',       Icons.science_rounded),
+  _Category.geography:     ('Geography',     Icons.public_rounded),
+  _Category.history:       ('History',       Icons.history_edu_rounded),
+  _Category.sport:         ('Sport',         Icons.sports_rounded),
+  _Category.entertainment: ('Entertainment', Icons.movie_rounded),
+};
 
 // ─── Data model ───────────────────────────────────────────────────────────────
 class _Entry {
@@ -40,75 +50,139 @@ const _mockNames = [
 
 const _mockAvatars = ['🧠', '👑', '⚡', '🔥', '🌊', '💡', '🎯', '🦁', '🐺', '🎲'];
 
-(List<_Entry>, _Entry) _buildMockData(_Mode mode, _Period period) {
-  // Top score per mode + period combination
-  final topScore = switch (mode) {
-    _Mode.classic  => switch (period) {
-      _Period.daily  => 4850,
-      _Period.weekly => 31200,
-      _Period.season => 128000,
-    },
-    _Mode.survival => switch (period) {
-      _Period.daily  => 23,
-      _Period.weekly => 25,
-      _Period.season => 25,
-    },
-    _Mode.rush     => switch (period) {
-      _Period.daily  => 1840,
-      _Period.weekly => 12600,
-      _Period.season => 54000,
-    },
+// ── Helpers ───────────────────────────────────────────────────────────────────
+String _fmtPts(int v) {
+  if (v >= 10000) return '${(v / 1000).toStringAsFixed(0)}k pts';
+  if (v >= 1000)  return '${(v / 1000).toStringAsFixed(1)}k pts';
+  return '$v pts';
+}
+
+int _myRankFor(_Period p) => switch (p) {
+  _Period.daily  => 28,
+  _Period.weekly => 15,
+  _Period.season => 42,
+};
+
+// ── Classic (per category × period) ──────────────────────────────────────────
+(List<_Entry>, _Entry) _classicMock(_Category cat, _Period p) {
+  // Base top score: category popularity × period multiplier
+  const catBoost = <_Category, double>{
+    _Category.science:       1.00,
+    _Category.geography:     1.10,
+    _Category.history:       0.95,
+    _Category.sport:         1.05,
+    _Category.entertainment: 0.90,
   };
-
-  String fmtScore(int v) {
-    if (mode == _Mode.survival) return '$v answered';
-    if (v >= 10000) return '${(v / 1000).toStringAsFixed(0)}k pts';
-    if (v >= 1000)  return '${(v / 1000).toStringAsFixed(1)}k pts';
-    return '$v pts';
-  }
-
-  // Score decay per rank step (~3% for pts modes, 1 for survival streaks)
-  final step = mode == _Mode.survival
-      ? 1
-      : (topScore * 0.03).round().clamp(1, 99999);
+  final baseDaily = (4850 * catBoost[cat]!).round();
+  final top = switch (p) {
+    _Period.daily  => baseDaily,
+    _Period.weekly => baseDaily * 7,
+    _Period.season => baseDaily * 28,
+  };
+  final step = (top * 0.03).round();
 
   final top10 = List.generate(10, (i) {
-    final v = (topScore - i * step).clamp(0, topScore);
+    final v = (top - i * step).clamp(0, top);
     return _Entry(
       rank:       i + 1,
       name:       _mockNames[i],
       avatar:     _mockAvatars[i],
-      scoreLabel: fmtScore(v),
+      scoreLabel: _fmtPts(v),
     );
   });
-
-  // User rank varies by period to make the data feel real
-  final myRank = switch (period) {
-    _Period.daily  => 28,
-    _Period.weekly => 15,
-    _Period.season => 42,
-  };
-  final myVal = mode == _Mode.survival
-      ? 8
-      : (topScore * 0.45).round();
-
   final me = _Entry(
-    rank:       myRank,
+    rank:       _myRankFor(p),
     name:       'You',
     avatar:     '😎',
-    scoreLabel: fmtScore(myVal),
+    scoreLabel: _fmtPts((top * 0.45).round()),
     isMe:       true,
   );
-
   return (top10, me);
 }
 
-// Pre-generate all 9 mode × period combos so rebuilds are instant
-// Index layout: mode.index * 3 + period.index
-final _allData = List<(List<_Entry>, _Entry)>.generate(
-  9,
-  (i) => _buildMockData(_Mode.values[i ~/ 3], _Period.values[i % 3]),
-);
+// ── Survival (period only) — shows answered + pts ────────────────────────────
+(List<_Entry>, _Entry) _survivalMock(_Period p) {
+  // Top streak per period (max possible = 25)
+  final topAns = switch (p) {
+    _Period.daily  => 23,
+    _Period.weekly => 25,
+    _Period.season => 25,
+  };
+  // Each correct answer ≈ 320 pts (with bonus for higher streaks)
+  String label(int answered) {
+    final pts = answered * 320 + (answered ~/ 5) * 200;
+    return '$answered ans · ${_fmtPts(pts)}';
+  }
+
+  final top10 = List.generate(10, (i) {
+    final ans = (topAns - i).clamp(1, 25);
+    return _Entry(
+      rank:       i + 1,
+      name:       _mockNames[i],
+      avatar:     _mockAvatars[i],
+      scoreLabel: label(ans),
+    );
+  });
+  final me = _Entry(
+    rank:       _myRankFor(p),
+    name:       'You',
+    avatar:     '😎',
+    scoreLabel: label(8),
+    isMe:       true,
+  );
+  return (top10, me);
+}
+
+// ── Rush (period only) — shows answered + pts ────────────────────────────────
+(List<_Entry>, _Entry) _rushMock(_Period p) {
+  // Top answered count in 60s
+  final topAns = switch (p) {
+    _Period.daily  => 18,
+    _Period.weekly => 22,
+    _Period.season => 24,
+  };
+  // Per period accumulator multiplier (best run only for daily, sums for week/season)
+  final mult = switch (p) {
+    _Period.daily  => 1,
+    _Period.weekly => 6,
+    _Period.season => 24,
+  };
+  String label(int answered) {
+    final pts = (answered * 95 * mult);
+    return '$answered ans · ${_fmtPts(pts)}';
+  }
+
+  final top10 = List.generate(10, (i) {
+    final ans = (topAns - i).clamp(1, 25);
+    return _Entry(
+      rank:       i + 1,
+      name:       _mockNames[i],
+      avatar:     _mockAvatars[i],
+      scoreLabel: label(ans),
+    );
+  });
+  final me = _Entry(
+    rank:       _myRankFor(p),
+    name:       'You',
+    avatar:     '😎',
+    scoreLabel: label(7),
+    isMe:       true,
+  );
+  return (top10, me);
+}
+
+// Pre-generate caches so tab switches are instant
+final _classicCache = <int, (List<_Entry>, _Entry)>{
+  for (var c in _Category.values)
+    for (var p in _Period.values)
+      c.index * 3 + p.index: _classicMock(c, p),
+};
+final _survivalCache = <int, (List<_Entry>, _Entry)>{
+  for (var p in _Period.values) p.index: _survivalMock(p),
+};
+final _rushCache = <int, (List<_Entry>, _Entry)>{
+  for (var p in _Period.values) p.index: _rushMock(p),
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // LeaderboardScreen
@@ -122,8 +196,9 @@ class LeaderboardScreen extends StatefulWidget {
 }
 
 class _LeaderboardScreenState extends State<LeaderboardScreen> {
-  _Mode   _mode   = _Mode.classic;
-  _Period _period = _Period.daily;
+  _Mode     _mode     = _Mode.classic;
+  _Period   _period   = _Period.daily;
+  _Category _category = _Category.science;
 
   Color get _modeColor => switch (_mode) {
     _Mode.classic  => _classicColor,
@@ -131,8 +206,16 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     _Mode.rush     => _rushColor,
   };
 
-  (List<_Entry>, _Entry) get _data =>
-      _allData[_mode.index * 3 + _period.index];
+  (List<_Entry>, _Entry) get _data {
+    switch (_mode) {
+      case _Mode.classic:
+        return _classicCache[_category.index * 3 + _period.index]!;
+      case _Mode.survival:
+        return _survivalCache[_period.index]!;
+      case _Mode.rush:
+        return _rushCache[_period.index]!;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,6 +234,11 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             _buildModeSelector(),
             const SizedBox(height: 10),
             _buildPeriodSelector(),
+            // Category selector — only for Classic mode
+            if (_mode == _Mode.classic) ...[
+              const SizedBox(height: 10),
+              _buildCategorySelector(),
+            ],
             const SizedBox(height: 8),
             Expanded(
               child: Stack(
@@ -264,11 +352,11 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
-        height: 44,
-        padding: const EdgeInsets.all(4),
+        height: 56,
+        padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
           color: _cardDark,
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(28),
         ),
         child: Row(
           children: List.generate(modes.length, (i) {
@@ -284,28 +372,45 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                 onTap: () => setState(() => _mode = mode),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: isActive
-                        ? col.withValues(alpha: 0.18)
+                        ? col.withValues(alpha: 0.20)
                         : Colors.transparent,
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(22),
                     border: isActive
-                        ? Border.all(color: col.withValues(alpha: 0.50))
+                        ? Border.all(
+                            color: col.withValues(alpha: 0.55), width: 1)
+                        : null,
+                    boxShadow: isActive
+                        ? [
+                            BoxShadow(
+                              color: col.withValues(alpha: 0.25),
+                              blurRadius: 12,
+                              spreadRadius: -2,
+                            ),
+                          ]
                         : null,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(icon, size: 14,
+                      Icon(icon, size: 17,
                           color: isActive ? col : _textSub),
-                      const SizedBox(width: 5),
-                      Text(
-                        label,
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: isActive ? col : _textSub,
+                      const SizedBox(width: 7),
+                      Flexible(
+                        child: Text(
+                          label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: isActive ? col : _textSub,
+                          ),
                         ),
                       ),
                     ],
@@ -315,6 +420,60 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             );
           }),
         ),
+      ),
+    );
+  }
+
+  // ── Category selector (Classic only) — horizontal chips ──────────────────────
+  Widget _buildCategorySelector() {
+    return SizedBox(
+      height: 34,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: _Category.values.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (context, i) {
+          final cat = _Category.values[i];
+          final (label, icon) = _categoryMeta[cat]!;
+          final isActive = _category == cat;
+          return GestureDetector(
+            onTap: () => setState(() => _category = cat),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: isActive
+                    ? _classicColor.withValues(alpha: 0.15)
+                    : _cardDark,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: isActive
+                      ? _classicColor.withValues(alpha: 0.55)
+                      : _border,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 14,
+                      color: isActive ? _classicColor : _textSub),
+                  const SizedBox(width: 6),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: isActive ? _classicColor : _textSub,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -679,24 +838,34 @@ class _UserPinnedRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Opaque tinted background — pre-blend mode color over the bg so the
+    // scrolling list behind the pinned row never bleeds through.
+    final opaqueBg = Color.alphaBlend(
+      modeColor.withValues(alpha: 0.18),
+      _cardDark,
+    );
+
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: modeColor.withValues(alpha: 0.12),
+        color: opaqueBg,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-            color: modeColor.withValues(alpha: 0.40), width: 1.5),
+            color: modeColor.withValues(alpha: 0.55), width: 1.5),
         boxShadow: [
+          // Soft glow above the pill
           BoxShadow(
-            color:      modeColor.withValues(alpha: 0.18),
-            blurRadius: 20,
+            color:      modeColor.withValues(alpha: 0.25),
+            blurRadius: 22,
             spreadRadius: -4,
             offset: const Offset(0, -6),
           ),
+          // Hard drop shadow to separate from list scrolling underneath
           BoxShadow(
-            color:      Colors.black.withValues(alpha: 0.55),
-            blurRadius: 14,
+            color:      Colors.black.withValues(alpha: 0.75),
+            blurRadius: 18,
+            offset: const Offset(0, -2),
           ),
         ],
       ),
