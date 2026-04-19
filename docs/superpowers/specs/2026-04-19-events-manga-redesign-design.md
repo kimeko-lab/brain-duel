@@ -18,7 +18,7 @@ The user's anchor idea: **manga page layout** — boxed panels with thick black 
 
 **V1 — Authentic White Manga, Grid Layout.**
 
-- Paper background `#F5F2E8` with subtle halftone dots (6px grid, 9% opacity)
+- Paper background `#F5F2E8` with halftone dots: **1.0px diameter circles on 6px grid, 9% ink opacity** (locked values — do not vary)
 - Ink `#0B0B0B` for all borders, text, and shadows
 - Accent: `manga-red #E63946` for "live now" badges, today-claimable, and your-rank chip
 - Medals: `gold #FFD93D`, `silver #C8CDD3`, `bronze #D98E4A`
@@ -77,11 +77,12 @@ The user's anchor idea: **manga page layout** — boxed panels with thick black 
 
 **A. Featured event panel** (~140px tall)
 - 3px ink border + 3px shadow, white bg
-- Diagonal speed-lines overlay (repeating-linear-gradient -18°, 6% opacity)
+- Diagonal speed-lines overlay: `CustomPainter` draws parallel `drawLine` at -18°, 8px gap, 1px stroke, ink 6% opacity. `shouldRepaint => false`.
 - `LIVE NOW!!` red badge — Bangers 13px, rotate -3°, 2px ink border, 2px shadow
 - `JAPANESE ANIME` title — Bangers 30px, 2-line
 - `1,000 exclusive questions` subtitle — Inter 11px, ink 70%
-- 88×88 starburst badge (polygon clip-path) bottom-right, red bg, ink border, centered `14 / DAYS LEFT` text
+- 88×88 starburst badge bottom-right, red bg, ink border, centered `14 / DAYS LEFT` text
+- **Note:** The existing screen's inline "Season XP" progress bar is intentionally dropped from this panel and moved to the Rewards tab (Section 4.4.A). Keeps featured panel focused on "what + when".
 
 **B. Daily Login panel** (~110px tall)
 - Header: `7-DAY STREAK` (Bangers 18px) left, `D4 · TAP TO CLAIM!` red Bebas Neue right
@@ -95,12 +96,11 @@ The user's anchor idea: **manga page layout** — boxed panels with thick black 
 **C. Event Modes section**
 - Section label `EVENT MODES` — Bangers 16px, rotate -1°
 - 2-col grid, gap 8px:
-  - **Classic** — `grid-column: span 2` (wide)
-    - Yellow gradient bg (`#FFF9DC → #FFE88F`) when claimable
-    - Green `DONE` pill + `DONE TODAY` status when played today
-    - `+50 EVENT XP` Bebas Neue label
-    - Icon ⚡ Bangers title
-  - **Survival** / **Rush** / **Daily** — 1-col, white bg
+  - **Classic** — `grid-column: span 2` (wide). Two explicit states:
+    - **Claimable (not yet played today):** yellow gradient bg (`#FFF9DC → #FFE88F`), ink `PLAY!` button (rotate -2°), status text `+50 EVENT XP` (Bebas Neue, ink 70%)
+    - **Done (played today):** white bg, green pill `DONE` (bg `#2A7D2A`, paper text, rotate 0°, no shadow), status text `DONE TODAY` (Bebas Neue, ink 70%)
+    - Both states: ⚡ icon + Bangers 16px `CLASSIC` title, 3px ink border, 2px shadow
+  - **Survival** / **Rush** / **Daily** — 1-col, white bg, single state (always claimable)
     - Mode icon + Bangers title (🔥 SURVIVAL, ⚡ RUSH, 🗓 DAILY)
     - XP label: `+80 XP/RUN`, `+60 XP/RUN`, `+40 XP · 1×/DAY`
 - Each card: 3px ink border, 2px shadow, `PLAY!` button (ink bg, paper text, Bangers 11px, rotate -2°) bottom-right
@@ -110,7 +110,7 @@ The user's anchor idea: **manga page layout** — boxed panels with thick black 
 
 **A. Season Pass panel**
 - Label `SEASON PASS` Bangers 16px + `430 / 1000` Bebas Neue on right
-- Progress track: 12px tall, 2px ink border, fill = diagonal hatching pattern (`repeating-linear-gradient 45° ink + #333`)
+- Progress track: 12px tall, 2px ink border. Fill uses `CustomPainter` that draws parallel diagonal `drawLine`s at 45°, 4px gap, 3px stroke, alternating ink + `#333`. Clipped to progress width.
 
 **B. Milestone rows** (7 rows for Season 1 placeholder: 100/200/350/500/650/800/1000 XP)
 - 3px ink border, 2px shadow, 56px height
@@ -144,6 +144,11 @@ The user's anchor idea: **manga page layout** — boxed panels with thick black 
 - `#N` Bangers 15px, 28×28 avatar circle (2px border), name Inter 700 12px, xp chip ink/paper
 - "You" row pinned at bottom: `#FFF0D4` bg, 4px ink border, same layout
 
+**D. Edge case rules**
+- **<3 players total:** render podium with placeholder slot(s) — avatar shows `?`, name shows `—`, xp chip shows `— XP`, block still appears with rank number but dimmed (50% opacity). Never hide the podium frame.
+- **User is in top 3:** YOUR RANK chip still renders above podium (shows `#1 / #2 / #3` and user's xp). User's podium slot gets a 4px red border (instead of 3px ink) to highlight. "OTHER PLAYERS" list starts from #4 as usual; do NOT pin "You" row at bottom in this case.
+- **Empty "Other Players" (only ≤3 total):** omit the `OTHER PLAYERS` label and section entirely. Show nothing between YOUR RANK chip and bottom padding.
+
 ---
 
 ## 5. Component Inventory
@@ -164,7 +169,8 @@ The user's anchor idea: **manga page layout** — boxed panels with thick black 
 ### Font additions
 - Add `Bangers-Regular.ttf` + `BebasNeue-Regular.ttf` under `assets/fonts/`
 - Declare in `pubspec.yaml` under `flutter.fonts`
-- Download from Google Fonts (SIL Open Font License)
+- Both fonts are licensed under **SIL Open Font License 1.1** (confirmed on Google Fonts: Bangers by Vernon Adams, Bebas Neue by Dharma Type)
+- **OFL 1.1 bundling requirement:** include `OFL.txt` license file in `assets/fonts/` alongside the .ttf files. Declare in `pubspec.yaml` assets list. This is a legal requirement, not optional.
 
 ### Design tokens (`lib/features/event/presentation/event_tokens.dart`)
 ```dart
@@ -219,9 +225,11 @@ lib/features/event/presentation/
 
 **Risk / watch-outs:**
 - Font rendering: Bangers has tight letter-spacing; test on small devices that "LIVE NOW!!" doesn't clip.
-- Halftone dot pattern at `BackgroundImage`-style can shimmer on low-DPI screens; keep opacity at 9% max.
-- `StarburstBadge` polygon clip-path in Flutter: use `CustomPainter` with `Path` + lineTo's (polygon has 20 vertices).
+- Halftone opacity locked at 9% (see Section 2) — do not increase or it shimmers on low-DPI.
+- `StarburstBadge`: 12 spikes (24 vertices total — 12 outer + 12 inner) generated by polar-coordinate loop inside `CustomPainter.paint` (outer radius = size/2, inner radius = outer × 0.62). 20 vertices is too many at 88px and reads circular; 12 reads sharp. Implementation: ~15 lines.
+- **No CSS primitives in Flutter:** every `repeating-linear-gradient` reference in mockups maps to `CustomPainter` + parallel `drawLine` calls in this spec. No `Image.asset` tiled SVGs needed.
 - Bottom nav stays dark → last pixel of page content must have enough bottom padding so white area doesn't clash with dark nav. Use `SafeArea` + existing 80px bottom padding.
+- **Dark mode override:** Events tab is the only screen in the app that uses a light background. The `MangaPaperBackground` and all ink colors are hardcoded — do NOT wire `Theme.of(context).brightness`. System dark mode does not affect Events tab.
 
 **Testing:**
 - Widget test: `EventScreen` renders with tabs + all 3 tab contents addressable.
@@ -243,13 +251,30 @@ Leaderboard placeholder data: identical to existing screen (AnimeMaster 1250 →
 
 ---
 
-## 9. Acceptance Criteria
+## 9. Accessibility
 
-- [ ] Events tab loads with paper background, ink borders, Bangers title
-- [ ] All 3 tabs (Play / Rewards / Rank) present and switchable
-- [ ] Podium displays top-3 with distinct heights (gold 74 / silver 56 / bronze 44) and medals
-- [ ] Daily login claim flow works: tap today box → SnackBar + state advances
-- [ ] `flutter analyze` clean
-- [ ] Fonts render correctly on Android + iOS (Bangers + Bebas Neue bundled)
-- [ ] Bottom nav stays dark while inside Events tab
-- [ ] Event-mode card taps navigate to correct `/{mode}/game` routes unchanged
+- **Contrast ratios** (paper `#F5F2E8` / ink `#0B0B0B` ≈ 17:1 AAA; manga-red `#E63946` on paper ≈ 4.6:1 — passes AA for text ≥18pt / 14pt bold only). Red is only used on large display text (Bangers ≥13px bold) and large surfaces (badges, chips) — never body text. OK.
+- **Font scaling:** Bangers at 30px with 2× `textScaler` → 60px will overflow the 140px-tall featured panel. Use `MediaQuery(...textScaler: TextScaler.linear(math.min(scale, 1.3)))` wrapping Events tab only. Clamps scale to 1.3× max within this screen.
+- **Semantic labels:** podium slots need `Semantics(label: 'Rank ${n}, ${name}, ${xp} XP')`. Day boxes need `Semantics(button: true, enabled: isClaimable, label: 'Day ${n}, ${state}, ${reward}')`.
+- **Haptics already match app conventions** — no additional a11y work needed.
+
+## 10. No-loading-state Policy
+
+All data in this screen is synchronous `const` mock data. **No `FutureBuilder`, no loading spinners, no error states are required or allowed in this spec.** The `_claimedUpTo` and `_todayClaimed` fields stay in `StatefulWidget` as today. If a user double-taps the claim box faster than setState runs, the second tap is a no-op because `canClaim = !todayClaimed` is re-evaluated on rebuild.
+
+## 11. Acceptance Criteria (falsifiable)
+
+- [ ] Events tab Scaffold uses `MangaPaperBackground`; Widget Inspector shows no `DeepNightBackground` in the Events subtree
+- [ ] All 3 tabs present; `TabController.length == 3`; each `IndexedStack` child builds without throwing
+- [ ] Widget probe: top-bar "EVENTS" text has `style.fontFamily == 'Bangers'` (catches missing font registration fallback to Inter)
+- [ ] Widget probe: "430 XP" has `style.fontFamily == 'BebasNeue'`
+- [ ] Podium slot heights: gold block = 74px, silver = 56px, bronze = 44px (verify via `RenderBox.size.height`)
+- [ ] Daily login claim: before tap `_todayClaimed == false`; after tap on day-4 box `_todayClaimed == true` AND `_claimedUpTo == 3`; SnackBar appears with text containing "Day 4"
+- [ ] Classic card state logic: given `dailyClassicDone == true` → card bg is white + green `DONE` pill visible; `== false` → yellow gradient bg + `PLAY!` ink button visible
+- [ ] Leaderboard edge cases: with `entries.length < 3`, podium renders with `?` placeholder slots (verify via finder); with user rank ≤ 3, bottom "You" row is absent
+- [ ] Halftone dot layer: `CustomPaint` with correct painter type exists in widget tree; manual device check confirms dots visible but not distracting
+- [ ] `flutter analyze` exits 0 with no new warnings
+- [ ] `flutter test` passes existing + new widget tests (at least one test per tab)
+- [ ] Bottom nav: take screenshot with Events tab open → nav bar pixels at `#06081F` cosmic bg (unchanged)
+- [ ] Routes: tap Survival card → `GoRouter.location == '/survival/game'`; Rush → `/rush/game`; Daily → `/daily/select`
+- [ ] `OFL.txt` present under `assets/fonts/` and declared in `pubspec.yaml` assets list
