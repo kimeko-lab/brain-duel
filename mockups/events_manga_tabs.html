@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Brain Duel — Events Manga Tabs</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Bebas+Neue&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#F5F2E8;--ink:#0B0B0B;--manga-red:#E63946;--indigo:#6366F1;--pink:#EC4899;--gold:#E6B800}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#0E1024;color:#fff;font-family:Inter,sans-serif}
+  header{padding:28px 40px 10px;border-bottom:1px solid #222655}
+  h1{margin:0;font-size:22px;font-weight:800}
+  .sub{color:#9CA3AF;font-size:13px;margin-top:6px}
+  .row{display:flex;gap:32px;padding:28px 40px;overflow-x:auto;align-items:flex-start}
+  .card{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .phone{width:380px;height:800px;border-radius:38px;border:3px solid #222655;background:#000;overflow:hidden;position:relative;box-shadow:0 20px 60px -12px rgba(99,102,241,.25)}
+  .phone-inner{position:absolute;inset:6px;border-radius:32px;overflow:hidden}
+  .caption{text-align:center;max-width:380px}
+  .caption h3{margin:0;font-size:16px;font-weight:800}
+  .caption p{margin:6px 0 0;font-size:12px;color:#9CA3AF;line-height:1.45}
+
+  .page{background:var(--paper);color:var(--ink);height:100%;position:relative;padding:14px 12px 80px;overflow:hidden}
+  .page::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(0,0,0,.09) 1px,transparent 0);background-size:6px 6px;pointer-events:none;opacity:.4}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;position:relative;z-index:2}
+  .t-left{display:flex;align-items:center;gap:8px}
+  .title{font-family:'Bangers';font-size:32px;letter-spacing:1px;line-height:1;transform:rotate(-2deg)}
+  .season{background:var(--ink);color:var(--paper);padding:3px 10px;font-family:'Bebas Neue';font-size:12px;letter-spacing:1px;border:2px solid var(--ink);transform:rotate(1.5deg)}
+  .xp-pill{border:2.5px solid var(--ink);padding:4px 10px;font-family:'Bebas Neue';font-size:13px;background:#fff;box-shadow:2px 2px 0 var(--ink)}
+
+  .tabs{display:flex;gap:6px;margin:10px 0;position:relative;z-index:2}
+  .tab{flex:1;border:2.5px solid var(--ink);background:#fff;padding:6px;font-family:'Bangers';font-size:13px;text-align:center;letter-spacing:.5px;box-shadow:2px 2px 0 var(--ink)}
+  .tab.active{background:var(--ink);color:var(--paper)}
+
+  /* shared panel */
+  .panel{border:3px solid var(--ink);background:#fff;box-shadow:3px 3px 0 var(--ink);padding:10px;margin-bottom:10px}
+
+  /* ═══ REWARDS ═══ */
+  .season-bar{display:flex;align-items:center;gap:10px}
+  .season-bar .track{flex:1;height:12px;background:#fff;border:2px solid var(--ink);position:relative;overflow:hidden}
+  .season-bar .fill{position:absolute;top:0;left:0;bottom:0;width:43%;background:repeating-linear-gradient(45deg,var(--ink) 0 4px,#333 4px 8px)}
+  .season-bar .num{font-family:'Bebas Neue';font-size:14px;letter-spacing:.5px}
+
+  .milestone{display:flex;align-items:center;gap:10px;padding:8px 10px;border:3px solid var(--ink);background:#fff;box-shadow:2px 2px 0 var(--ink);margin-bottom:7px;position:relative}
+  .m-icon{width:40px;height:40px;border:2.5px solid var(--ink);background:#fff;display:grid;place-items:center;font-size:20px;flex-shrink:0}
+  .m-icon.claimed{background:var(--ink);color:var(--paper)}
+  .milestone.claimed{background:#EEEAD7}
+  .milestone.claimed .m-label{text-decoration:line-through;opacity:.55}
+  .milestone.next{border-width:4px;background:#FFFDF0}
+  .m-label{font-family:'Bangers';font-size:15px;letter-spacing:.3px;flex:1}
+  .m-xp{font-family:'Bebas Neue';font-size:11px;background:var(--ink);color:var(--paper);padding:2px 7px;letter-spacing:.5px}
+  .m-claim-btn{font-family:'Bangers';font-size:11px;background:var(--manga-red);color:#fff;border:2px solid var(--ink);padding:3px 9px;transform:rotate(-3deg);box-shadow:2px 2px 0 var(--ink)}
+  .m-progress{font-family:'Bebas Neue';font-size:10px;color:var(--manga-red)}
+
+  /* ═══ LEADERBOARD ═══ */
+  .me-chip{border:3px solid var(--ink);background:var(--manga-red);color:#fff;padding:8px 10px;margin-bottom:10px;box-shadow:3px 3px 0 var(--ink);display:flex;align-items:center;gap:10px}
+  .me-chip .big{font-family:'Bangers';font-size:20px}
+  .lb-title{font-family:'Bangers';font-size:16px;margin:4px 0 6px;transform:rotate(-1deg);display:inline-block}
+  .lb-row{display:flex;align-items:center;gap:10px;padding:7px 10px;border:3px solid var(--ink);background:#fff;box-shadow:2px 2px 0 var(--ink);margin-bottom:5px}
+  .lb-rank{width:28px;font-family:'Bangers';font-size:18px;text-align:center}
+  .lb-rank.gold{color:var(--gold)}
+  .lb-rank.silver{color:#888}
+  .lb-rank.bronze{color:#CD7F32}
+  .lb-avatar{width:32px;height:32px;border:2.5px solid var(--ink);background:#F0ECDD;border-radius:50%;display:grid;place-items:center;font-size:14px}
+  .lb-name{flex:1;font-family:'Inter';font-weight:800;font-size:13px}
+  .lb-xp{font-family:'Bebas Neue';font-size:12px;background:var(--ink);color:var(--paper);padding:2px 7px}
+  .lb-row.me{background:#FFF0D4;border-width:4px}
+  .lb-row.top1{background:linear-gradient(135deg,#FFF9DC,#FFE88F)}
+
+  .crown-badge{position:absolute;right:-8px;top:-10px;font-size:22px;transform:rotate(18deg)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Rewards & Leaderboard — Manga Grid Treatment</h1>
+  <div class="sub">Does the V1 grid style hold up for list-heavy tabs? Does the reward claim flow feel punchy?</div>
+</header>
+
+<div class="row">
+
+  <!-- REWARDS -->
+  <div class="card">
+    <div class="phone"><div class="phone-inner"><div class="page">
+      <div class="topbar">
+        <div class="t-left"><div class="title">EVENTS</div><div class="season">SEASON 1</div></div>
+        <div class="xp-pill">★ 430 XP</div>
+      </div>
+      <div class="tabs"><div class="tab">PLAY</div><div class="tab active">REWARDS</div><div class="tab">RANK</div></div>
+
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <div style="font-family:'Bangers';font-size:16px">SEASON PASS</div>
+          <div style="font-family:'Bebas Neue';font-size:11px">430 / 1000</div>
+        </div>
+        <div class="season-bar">
+          <div class="track"><div class="fill"></div></div>
+        </div>
+      </div>
+
+      <div class="milestone claimed">
+        <div class="m-icon claimed">✓</div>
+        <div class="m-label">50 CRYSTALS</div>
+        <div class="m-xp">100 XP</div>
+      </div>
+      <div class="milestone claimed">
+        <div class="m-icon claimed">✓</div>
+        <div class="m-label">SILVER BOOK</div>
+        <div class="m-xp">200 XP</div>
+      </div>
+      <div class="milestone claimed">
+        <div class="m-icon claimed">✓</div>
+        <div class="m-label">100 CRYSTALS</div>
+        <div class="m-xp">350 XP</div>
+      </div>
+      <div class="milestone next">
+        <div class="m-icon">📘</div>
+        <div style="flex:1">
+          <div class="m-label" style="margin:0">EVENT BOOK</div>
+          <div class="m-progress">86% · 70 XP to go</div>
+        </div>
+        <div class="m-claim-btn">SOON</div>
+      </div>
+      <div class="milestone">
+        <div class="m-icon">🃏</div>
+        <div class="m-label">UNCOMMON CARD</div>
+        <div class="m-xp">650 XP</div>
+      </div>
+      <div class="milestone">
+        <div class="m-icon">📘</div>
+        <div class="m-label">2× EVENT BOOK</div>
+        <div class="m-xp">800 XP</div>
+      </div>
+      <div class="milestone" style="position:relative">
+        <div class="m-icon" style="background:var(--gold)">★</div>
+        <div class="m-label">RARE EVENT CARD</div>
+        <div class="m-xp" style="background:var(--manga-red)">1000 XP</div>
+        <div class="crown-badge">👑</div>
+      </div>
+
+    </div></div></div>
+    <div class="caption">
+      <h3>Rewards Tab</h3>
+      <p>Milestone list pakai ink panel. Claimed = dicoret + abu. "Next" milestone border lebih tebal + hint progress merah. Last milestone dapat starburst crown (signal peak reward). Baseline tenang, highlight di next + final.</p>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div class="card">
+    <div class="phone"><div class="phone-inner"><div class="page">
+      <div class="topbar">
+        <div class="t-left"><div class="title">EVENTS</div><div class="season">SEASON 1</div></div>
+        <div class="xp-pill">★ 430 XP</div>
+      </div>
+      <div class="tabs"><div class="tab">PLAY</div><div class="tab">REWARDS</div><div class="tab active">RANK</div></div>
+
+      <div class="me-chip">
+        <span style="font-size:22px">🏆</span>
+        <div style="flex:1">
+          <div style="font-family:'Bebas Neue';font-size:11px;letter-spacing:1px">YOUR RANK</div>
+          <div class="big">#42</div>
+        </div>
+        <div style="font-family:'Bangers';font-size:18px">430 XP</div>
+      </div>
+
+      <div class="lb-title">TOP PLAYERS</div>
+
+      <div class="lb-row top1">
+        <div class="lb-rank gold">🥇</div>
+        <div class="lb-avatar">👑</div>
+        <div class="lb-name">AnimeMaster</div>
+        <div class="lb-xp">1250 XP</div>
+      </div>
+      <div class="lb-row">
+        <div class="lb-rank silver">🥈</div>
+        <div class="lb-avatar">👤</div>
+        <div class="lb-name">QuizKing</div>
+        <div class="lb-xp">1100 XP</div>
+      </div>
+      <div class="lb-row">
+        <div class="lb-rank bronze">🥉</div>
+        <div class="lb-avatar">👤</div>
+        <div class="lb-name">BrainDuelist</div>
+        <div class="lb-xp">980 XP</div>
+      </div>
+      <div class="lb-row"><div class="lb-rank">#4</div><div class="lb-avatar">👤</div><div class="lb-name">TriviaPro</div><div class="lb-xp">870 XP</div></div>
+      <div class="lb-row"><div class="lb-rank">#5</div><div class="lb-avatar">👤</div><div class="lb-name">KnowledgeHunter</div><div class="lb-xp">760 XP</div></div>
+      <div class="lb-row"><div class="lb-rank">#6</div><div class="lb-avatar">👤</div><div class="lb-name">AnimeExpert</div><div class="lb-xp">650 XP</div></div>
+      <div class="lb-row"><div class="lb-rank">#7</div><div class="lb-avatar">👤</div><div class="lb-name">QuizWizard</div><div class="lb-xp">590 XP</div></div>
+
+      <div style="font-family:'Bebas Neue';font-size:11px;text-align:center;color:#888;margin:4px 0">· · · ·</div>
+
+      <div class="lb-row me"><div class="lb-rank">#42</div><div class="lb-avatar">😎</div><div class="lb-name">You</div><div class="lb-xp">430 XP</div></div>
+
+    </div></div></div>
+    <div class="caption">
+      <h3>Leaderboard Tab</h3>
+      <p>"YOUR RANK" chip merah di atas (kontras kuat). Top 3 pakai medali emoji. Row #1 gradient kuning. "You" row tebal + highlight. Manga medals = readable + punchy. List tetap terbaca walau 50+ rows.</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

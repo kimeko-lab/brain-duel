@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Brain Duel — Leaderboard with Podium</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Bebas+Neue&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#F5F2E8;--ink:#0B0B0B;--manga-red:#E63946;--gold:#FFD93D;--silver:#C8CDD3;--bronze:#D98E4A}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#0E1024;color:#fff;font-family:Inter,sans-serif}
+  header{padding:28px 40px 10px;border-bottom:1px solid #222655}
+  h1{margin:0;font-size:22px;font-weight:800}
+  .sub{color:#9CA3AF;font-size:13px;margin-top:6px}
+  .row{display:flex;gap:32px;padding:28px 40px;overflow-x:auto;align-items:flex-start;justify-content:center}
+  .card{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .phone{width:380px;height:820px;border-radius:38px;border:3px solid #222655;background:#000;overflow:hidden;position:relative;box-shadow:0 20px 60px -12px rgba(99,102,241,.25)}
+  .phone-inner{position:absolute;inset:6px;border-radius:32px;overflow:hidden}
+  .caption{text-align:center;max-width:380px}
+  .caption h3{margin:0;font-size:16px;font-weight:800}
+  .caption p{margin:6px 0 0;font-size:12px;color:#9CA3AF;line-height:1.45}
+
+  .page{background:var(--paper);color:var(--ink);height:100%;position:relative;padding:14px 12px 80px;overflow:hidden}
+  .page::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(0,0,0,.09) 1px,transparent 0);background-size:6px 6px;pointer-events:none;opacity:.4}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;position:relative;z-index:2}
+  .t-left{display:flex;align-items:center;gap:8px}
+  .title{font-family:'Bangers';font-size:32px;letter-spacing:1px;line-height:1;transform:rotate(-2deg)}
+  .season{background:var(--ink);color:var(--paper);padding:3px 10px;font-family:'Bebas Neue';font-size:12px;letter-spacing:1px;border:2px solid var(--ink);transform:rotate(1.5deg)}
+  .xp-pill{border:2.5px solid var(--ink);padding:4px 10px;font-family:'Bebas Neue';font-size:13px;background:#fff;box-shadow:2px 2px 0 var(--ink)}
+  .tabs{display:flex;gap:6px;margin:10px 0 12px;position:relative;z-index:2}
+  .tab{flex:1;border:2.5px solid var(--ink);background:#fff;padding:6px;font-family:'Bangers';font-size:13px;text-align:center;letter-spacing:.5px;box-shadow:2px 2px 0 var(--ink)}
+  .tab.active{background:var(--ink);color:var(--paper)}
+
+  /* Podium frame */
+  .podium-wrap{
+    border:3px solid var(--ink);background:#fff;box-shadow:3px 3px 0 var(--ink);
+    padding:18px 10px 12px;position:relative;overflow:hidden;margin-bottom:12px;
+  }
+  .podium-wrap::before{
+    content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(-20deg,transparent 0 14px,rgba(0,0,0,.05) 14px 15px);
+    pointer-events:none;
+  }
+  .podium-label{position:absolute;top:6px;left:10px;font-family:'Bangers';font-size:14px;letter-spacing:1px;transform:rotate(-1deg);z-index:2}
+  .sfx-boom{position:absolute;top:-4px;right:8px;font-family:'Bangers';font-size:18px;color:var(--manga-red);-webkit-text-stroke:1.5px var(--ink);transform:rotate(8deg);z-index:2;letter-spacing:1px}
+
+  .podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:10px;align-items:end;margin-top:14px;position:relative;z-index:1}
+  .p-slot{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative}
+
+  .p-avatar{width:56px;height:56px;border-radius:50%;border:3px solid var(--ink);background:#F0ECDD;display:grid;place-items:center;font-size:26px;box-shadow:2px 2px 0 var(--ink);position:relative;z-index:2}
+  .p-avatar.gold{background:var(--gold);width:66px;height:66px;font-size:32px}
+  .p-avatar.silver{background:var(--silver)}
+  .p-avatar.bronze{background:var(--bronze);color:#fff}
+
+  .p-crown{position:absolute;top:-18px;left:50%;transform:translateX(-50%) rotate(-4deg);font-size:24px;z-index:3;filter:drop-shadow(1px 1px 0 var(--ink))}
+
+  .p-name{font-family:'Inter';font-weight:800;font-size:11px;text-align:center;line-height:1.15;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .p-xp{font-family:'Bebas Neue';font-size:10px;background:var(--ink);color:var(--paper);padding:1px 6px;letter-spacing:.5px}
+
+  .p-block{width:100%;border:3px solid var(--ink);display:grid;place-items:center;box-shadow:3px 3px 0 var(--ink);position:relative}
+  .p-block-n{font-family:'Bangers';font-size:30px;line-height:1}
+  .p-block.gold{background:var(--gold);height:74px}
+  .p-block.silver{background:var(--silver);height:56px}
+  .p-block.bronze{background:var(--bronze);color:#fff;height:44px}
+  .p-block-n.silver,.p-block-n.gold{color:var(--ink)}
+
+  .p-medal{position:absolute;right:-6px;top:-8px;font-size:20px;transform:rotate(12deg);filter:drop-shadow(1px 1px 0 var(--ink))}
+
+  /* Rest list */
+  .me-chip{border:3px solid var(--ink);background:var(--manga-red);color:#fff;padding:8px 10px;margin-bottom:10px;box-shadow:3px 3px 0 var(--ink);display:flex;align-items:center;gap:10px}
+  .me-chip .big{font-family:'Bangers';font-size:20px}
+  .lb-title{font-family:'Bangers';font-size:15px;margin:2px 0 6px;transform:rotate(-1deg);display:inline-block}
+  .lb-row{display:flex;align-items:center;gap:10px;padding:6px 10px;border:3px solid var(--ink);background:#fff;box-shadow:2px 2px 0 var(--ink);margin-bottom:5px}
+  .lb-rank{width:28px;font-family:'Bangers';font-size:15px;text-align:center}
+  .lb-avatar{width:28px;height:28px;border:2px solid var(--ink);background:#F0ECDD;border-radius:50%;display:grid;place-items:center;font-size:13px}
+  .lb-name{flex:1;font-family:'Inter';font-weight:700;font-size:12px}
+  .lb-xp{font-family:'Bebas Neue';font-size:11px;background:var(--ink);color:var(--paper);padding:1px 6px}
+  .lb-row.me{background:#FFF0D4;border-width:4px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Leaderboard — With Manga Podium Top 3</h1>
+  <div class="sub">Podium dalam ink panel dengan halftone + SFX burst. #1 paling tinggi & pakai crown, #2 & #3 lebih pendek. Rest of list di bawah #4–#50.</div>
+</header>
+
+<div class="row">
+  <div class="card">
+    <div class="phone"><div class="phone-inner"><div class="page">
+      <div class="topbar">
+        <div class="t-left"><div class="title">EVENTS</div><div class="season">SEASON 1</div></div>
+        <div class="xp-pill">★ 430 XP</div>
+      </div>
+      <div class="tabs"><div class="tab">PLAY</div><div class="tab">REWARDS</div><div class="tab active">RANK</div></div>
+
+      <!-- PODIUM -->
+      <div class="podium-wrap">
+        <div class="podium-label">TOP 3 ★</div>
+        <div class="sfx-boom">WOW!!</div>
+        <div class="podium">
+          <!-- #2 -->
+          <div class="p-slot">
+            <div class="p-avatar silver">👤</div>
+            <div class="p-name">QuizKing</div>
+            <div class="p-xp">1100 XP</div>
+            <div class="p-block silver">
+              <span class="p-medal">🥈</span>
+              <div class="p-block-n silver">2</div>
+            </div>
+          </div>
+          <!-- #1 -->
+          <div class="p-slot">
+            <div class="p-crown">👑</div>
+            <div class="p-avatar gold">👑</div>
+            <div class="p-name">AnimeMaster</div>
+            <div class="p-xp" style="background:var(--manga-red)">1250 XP</div>
+            <div class="p-block gold">
+              <span class="p-medal">🥇</span>
+              <div class="p-block-n gold">1</div>
+            </div>
+          </div>
+          <!-- #3 -->
+          <div class="p-slot">
+            <div class="p-avatar bronze">👤</div>
+            <div class="p-name">BrainDuelist</div>
+            <div class="p-xp">980 XP</div>
+            <div class="p-block bronze">
+              <span class="p-medal">🥉</span>
+              <div class="p-block-n" style="color:#fff">3</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="me-chip">
+        <span style="font-size:20px">🏆</span>
+        <div style="flex:1">
+          <div style="font-family:'Bebas Neue';font-size:10px;letter-spacing:1px">YOUR RANK</div>
+          <div class="big">#42</div>
+        </div>
+        <div style="font-family:'Bangers';font-size:16px">430 XP</div>
+      </div>
+
+      <div class="lb-title">OTHER PLAYERS</div>
+
+      <div class="lb-row"><div class="lb-rank">#4</div><div class="lb-avatar">👤</div><div class="lb-name">TriviaPro</div><div class="lb-xp">870</div></div>
+      <div class="lb-row"><div class="lb-rank">#5</div><div class="lb-avatar">👤</div><div class="lb-name">KnowledgeHunter</div><div class="lb-xp">760</div></div>
+      <div class="lb-row"><div class="lb-rank">#6</div><div class="lb-avatar">👤</div><div class="lb-name">AnimeExpert</div><div class="lb-xp">650</div></div>
+      <div class="lb-row"><div class="lb-rank">#7</div><div class="lb-avatar">👤</div><div class="lb-name">QuizWizard</div><div class="lb-xp">590</div></div>
+      <div class="lb-row"><div class="lb-rank">#8</div><div class="lb-avatar">👤</div><div class="lb-name">StudyBuddy</div><div class="lb-xp">480</div></div>
+
+      <div style="font-family:'Bebas Neue';font-size:11px;text-align:center;color:#888;margin:4px 0">· · · ·</div>
+
+      <div class="lb-row me"><div class="lb-rank">#42</div><div class="lb-avatar">😎</div><div class="lb-name">You</div><div class="lb-xp">430</div></div>
+    </div></div></div>
+    <div class="caption">
+      <h3>Top-3 Podium</h3>
+      <p>#1 center + crown + avatar lebih besar + block paling tinggi. #2 silver kiri, #3 bronze kanan. Halftone diagonal di panel, SFX "WOW!!" di pojok. "OTHER PLAYERS" di bawah untuk #4 dst. "You" chip tetap pinned di bawah.</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

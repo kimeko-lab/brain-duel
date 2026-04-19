@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Brain Duel — Events Manga Direction</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Bebas+Neue&family=Inter:wght@400;600;700;800;900&family=Permanent+Marker&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --indigo:#6366F1; --pink:#EC4899; --cyan:#22D3EE;
+    --paper:#F5F2E8; --ink:#0B0B0B; --manga-red:#E63946;
+    --cosmic:#06081F; --cosmic-mid:#181B3E;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#0E1024;color:#fff;font-family:Inter,sans-serif}
+  header{padding:28px 40px 10px;border-bottom:1px solid #222655}
+  h1{margin:0;font-size:22px;font-weight:800;letter-spacing:-.3px}
+  .sub{color:#9CA3AF;font-size:13px;margin-top:6px}
+  .row{display:flex;gap:32px;padding:28px 40px;overflow-x:auto;align-items:flex-start}
+  .card{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .phone{
+    width:360px;height:760px;border-radius:38px;
+    border:3px solid #222655;background:#000;overflow:hidden;position:relative;
+    box-shadow:0 20px 60px -12px rgba(99,102,241,.25);
+  }
+  .phone-inner{position:absolute;inset:6px;border-radius:32px;overflow:hidden}
+  .caption{text-align:center;max-width:360px}
+  .caption h3{margin:0;font-size:16px;font-weight:800}
+  .caption p{margin:6px 0 0;font-size:12px;color:#9CA3AF;line-height:1.45}
+
+  /* ═══════════ V1: Authentic White Manga ═══════════ */
+  .v1{background:var(--paper);color:var(--ink);height:100%;position:relative;padding:14px 12px 80px;overflow:hidden}
+  .v1::before{
+    content:"";position:absolute;inset:0;background-image:
+      radial-gradient(circle at 1px 1px, rgba(0,0,0,.09) 1px, transparent 0);
+    background-size:6px 6px;pointer-events:none;opacity:.4;
+  }
+  .v1-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;position:relative;z-index:1}
+  .v1-title{font-family:'Bangers',sans-serif;font-size:32px;letter-spacing:1px;color:var(--ink);line-height:1;transform:rotate(-2deg)}
+  .v1-season{background:var(--ink);color:var(--paper);padding:3px 10px;font-family:'Bebas Neue';font-size:12px;letter-spacing:1px;border:2px solid var(--ink);transform:rotate(1.5deg)}
+  .v1-xp{border:2.5px solid var(--ink);padding:4px 10px;font-family:'Bebas Neue';font-size:13px;background:#fff;letter-spacing:.5px;box-shadow:2px 2px 0 var(--ink)}
+
+  .panel{border:3px solid var(--ink);background:#fff;position:relative;box-shadow:3px 3px 0 var(--ink);margin-bottom:10px}
+  .panel-hero{padding:14px;height:140px;overflow:hidden;position:relative}
+  .speedlines{position:absolute;inset:0;background:repeating-linear-gradient(-18deg,transparent 0 8px,rgba(0,0,0,.06) 8px 9px);pointer-events:none}
+  .live-badge{display:inline-block;background:var(--manga-red);color:#fff;font-family:'Bangers';font-size:13px;letter-spacing:1px;padding:2px 9px;border:2px solid var(--ink);transform:rotate(-3deg);box-shadow:2px 2px 0 var(--ink)}
+  .event-title{font-family:'Bangers',sans-serif;font-size:30px;color:var(--ink);line-height:.95;margin:8px 0 2px;letter-spacing:.5px}
+  .event-sub{font-size:11px;color:#444;font-weight:600}
+  .days-burst{position:absolute;right:10px;top:18px;width:88px;height:88px;display:grid;place-items:center;
+    background:var(--manga-red);color:#fff;
+    clip-path:polygon(50% 0,61% 18%,80% 8%,78% 30%,100% 38%,82% 52%,100% 68%,77% 70%,80% 92%,61% 82%,50% 100%,39% 82%,20% 92%,23% 70%,0 68%,18% 52%,0 38%,22% 30%,20% 8%,39% 18%);
+    border:2px solid var(--ink);
+  }
+  .days-burst-n{font-family:'Bangers';font-size:30px;line-height:1}
+  .days-burst-l{font-family:'Bebas Neue';font-size:9px;letter-spacing:.8px;margin-top:-2px}
+
+  .v1-daily{padding:10px 10px 12px}
+  .v1-daily-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .v1-daily-title{font-family:'Bangers';font-size:18px;letter-spacing:.5px}
+  .v1-daily-hint{font-family:'Bebas Neue';font-size:11px;color:var(--manga-red)}
+  .v1-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .v1-day{border:2px solid var(--ink);background:#fff;text-align:center;padding:4px 0;font-family:'Bebas Neue';font-size:10px;position:relative}
+  .v1-day.claimed{background:var(--ink);color:var(--paper)}
+  .v1-day.today{background:var(--manga-red);color:#fff;box-shadow:2px 2px 0 var(--ink);transform:translate(-1px,-1px)}
+  .v1-day-num{font-size:8px;opacity:.7}
+  .v1-day-icon{font-size:12px;line-height:1.2}
+
+  .v1-modes-title{font-family:'Bangers';font-size:16px;margin:4px 0 8px;letter-spacing:.5px;transform:rotate(-1deg);display:inline-block}
+  .v1-modes{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .v1-mode{border:3px solid var(--ink);background:#fff;padding:8px;position:relative;box-shadow:2px 2px 0 var(--ink)}
+  .v1-mode.wide{grid-column:span 2;background:linear-gradient(135deg,#FFF9DC 0%,#FFE88F 100%)}
+  .v1-mode-label{font-family:'Bangers';font-size:16px;letter-spacing:.5px}
+  .v1-mode-xp{font-family:'Bebas Neue';font-size:10px;color:#555;letter-spacing:.3px}
+  .v1-mode-btn{position:absolute;right:6px;bottom:6px;background:var(--ink);color:#fff;font-family:'Bangers';font-size:11px;padding:2px 8px;letter-spacing:.5px;transform:rotate(-2deg)}
+
+  /* ═══════════ V2: Dark Seinen Manga ═══════════ */
+  .v2{background:#0A0A0F;color:#fff;height:100%;position:relative;padding:14px 12px 80px;overflow:hidden}
+  .v2::before{
+    content:"";position:absolute;inset:0;background-image:
+      radial-gradient(circle at 1px 1px, rgba(255,255,255,.08) 1px, transparent 0);
+    background-size:5px 5px;pointer-events:none;opacity:.5;
+  }
+  .v2-title{font-family:'Bangers',sans-serif;font-size:32px;letter-spacing:1px;color:#fff;line-height:1;transform:rotate(-2deg)}
+  .v2-season{background:#fff;color:#000;padding:3px 10px;font-family:'Bebas Neue';font-size:12px;letter-spacing:1px;border:2px solid #fff;transform:rotate(1.5deg)}
+  .v2-xp{border:2.5px solid #fff;padding:4px 10px;font-family:'Bebas Neue';font-size:13px;background:#111;color:#fff;letter-spacing:.5px;box-shadow:2px 2px 0 #fff}
+  .v2 .panel{border:3px solid #fff;background:#14141B;box-shadow:3px 3px 0 #fff;color:#fff}
+  .v2 .speedlines{background:repeating-linear-gradient(-18deg,transparent 0 8px,rgba(255,255,255,.08) 8px 9px)}
+  .v2 .live-badge{background:var(--manga-red);border-color:#fff;box-shadow:2px 2px 0 #fff}
+  .v2 .event-title{color:#fff}
+  .v2 .event-sub{color:#bbb}
+  .v2 .days-burst{background:var(--manga-red);border-color:#fff}
+  .v2 .v1-day{border-color:#fff;background:#14141B;color:#fff}
+  .v2 .v1-day.claimed{background:#fff;color:#000}
+  .v2 .v1-day.today{background:var(--manga-red);color:#fff;box-shadow:2px 2px 0 #fff}
+  .v2 .v1-daily-hint{color:var(--manga-red)}
+  .v2 .v1-mode{border-color:#fff;background:#14141B;box-shadow:2px 2px 0 #fff;color:#fff}
+  .v2 .v1-mode.wide{background:linear-gradient(135deg,#3B1414 0%,#6B1B1B 100%)}
+  .v2 .v1-mode-xp{color:#bbb}
+  .v2 .v1-mode-btn{background:#fff;color:#000}
+
+  /* ═══════════ V3: Hybrid Cosmic Manga ═══════════ */
+  .v3{background:linear-gradient(180deg,#06081F 0%,#181B3E 50%,#03050F 100%);color:#fff;height:100%;position:relative;padding:14px 12px 80px;overflow:hidden}
+  .v3::before{
+    content:"";position:absolute;inset:0;background-image:
+      radial-gradient(1px 1px at 30px 50px,rgba(255,255,255,.5),transparent),
+      radial-gradient(1px 1px at 130px 130px,rgba(99,102,241,.7),transparent),
+      radial-gradient(1px 1px at 200px 300px,rgba(236,72,153,.6),transparent),
+      radial-gradient(1px 1px at 80px 500px,rgba(34,211,238,.6),transparent),
+      radial-gradient(1px 1px at 280px 600px,rgba(255,255,255,.4),transparent);
+  }
+  .v3-title{font-family:'Bangers',sans-serif;font-size:32px;letter-spacing:1px;line-height:1;transform:rotate(-2deg);
+    background:linear-gradient(90deg,#22D3EE,#EC4899);-webkit-background-clip:text;background-clip:text;color:transparent;
+    -webkit-text-stroke:2px #fff;
+    filter:drop-shadow(2px 2px 0 #000);
+  }
+  .v3-season{background:var(--pink);color:#fff;padding:3px 10px;font-family:'Bebas Neue';font-size:12px;letter-spacing:1px;border:2px solid #fff;transform:rotate(1.5deg);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
+  .v3-xp{border:2.5px solid #fff;padding:4px 10px;font-family:'Bebas Neue';font-size:13px;background:rgba(11,14,37,.8);color:var(--cyan);letter-spacing:.5px;box-shadow:2px 2px 0 #000;backdrop-filter:blur(4px)}
+
+  .v3 .panel{border:3px solid #fff;background:rgba(245,242,232,.96);color:var(--ink);box-shadow:3px 3px 0 #000, 0 0 20px rgba(99,102,241,.3)}
+  .v3 .live-badge{background:var(--pink);color:#fff;border-color:#fff;box-shadow:2px 2px 0 #000}
+  .v3 .days-burst{background:var(--cyan);color:var(--ink);border-color:#fff;box-shadow:2px 2px 0 #000}
+  .v3 .v1-day{border:2px solid #fff;background:rgba(245,242,232,.9);color:var(--ink);backdrop-filter:blur(2px)}
+  .v3 .v1-day.claimed{background:var(--indigo);color:#fff;border-color:#fff}
+  .v3 .v1-day.today{background:var(--pink);color:#fff;box-shadow:2px 2px 0 #000;transform:translate(-1px,-1px)}
+  .v3-modes-title{font-family:'Bangers';font-size:16px;margin:4px 0 8px;letter-spacing:.5px;transform:rotate(-1deg);display:inline-block;color:#fff;text-shadow:2px 2px 0 #000}
+  .v3 .v1-mode{border:3px solid #fff;background:rgba(11,14,37,.85);color:#fff;box-shadow:2px 2px 0 #000;backdrop-filter:blur(4px)}
+  .v3 .v1-mode.wide{background:linear-gradient(135deg,rgba(99,102,241,.85),rgba(236,72,153,.85))}
+  .v3 .v1-mode-xp{color:#bbb}
+  .v3 .v1-mode-btn{background:var(--cyan);color:var(--ink);border:1.5px solid #fff}
+</style>
+</head>
+<body>
+<header>
+  <h1>Events — Manga Panel Direction</h1>
+  <div class="sub">Three variants of the "manga page" idea. Each breaks the Home cosmic theme differently. Scroll horizontally if needed.</div>
+</header>
+
+<div class="row">
+
+  <!-- ═══════════════ V1 ═══════════════ -->
+  <div class="card">
+    <div class="phone"><div class="phone-inner"><div class="v1">
+      <div class="v1-topbar">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="v1-title">EVENTS</div>
+          <div class="v1-season">SEASON 1</div>
+        </div>
+        <div class="v1-xp">★ 430 XP</div>
+      </div>
+
+      <div class="panel panel-hero">
+        <div class="speedlines"></div>
+        <div class="live-badge">LIVE NOW!!</div>
+        <div class="event-title">JAPANESE<br>ANIME</div>
+        <div class="event-sub">1,000 exclusive questions</div>
+        <div class="days-burst">
+          <div style="text-align:center">
+            <div class="days-burst-n">14</div>
+            <div class="days-burst-l">DAYS LEFT</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel v1-daily">
+        <div class="v1-daily-head">
+          <div class="v1-daily-title">7-DAY STREAK</div>
+          <div class="v1-daily-hint">D4 · TAP TO CLAIM!</div>
+        </div>
+        <div class="v1-days">
+          <div class="v1-day claimed"><div class="v1-day-icon">✓</div><div class="v1-day-num">D1</div></div>
+          <div class="v1-day claimed"><div class="v1-day-icon">✓</div><div class="v1-day-num">D2</div></div>
+          <div class="v1-day claimed"><div class="v1-day-icon">✓</div><div class="v1-day-num">D3</div></div>
+          <div class="v1-day today"><div class="v1-day-icon">🎁</div><div class="v1-day-num">D4</div></div>
+          <div class="v1-day"><div class="v1-day-icon">·</div><div class="v1-day-num">D5</div></div>
+          <div class="v1-day"><div class="v1-day-icon">·</div><div class="v1-day-num">D6</div></div>
+          <div class="v1-day"><div class="v1-day-icon">★</div><div class="v1-day-num">D7</div></div>
+        </div>
+      </div>
+
+      <div class="v1-modes-title">EVENT MODES</div>
+      <div class="v1-modes">
+        <div class="v1-mode wide">
+          <div class="v1-mode-label">⚡ CLASSIC</div>
+          <div class="v1-mode-xp">+50 EVENT XP · DONE TODAY</div>
+          <div class="v1-mode-btn" style="background:#2a7d2a">DONE</div>
+        </div>
+        <div class="v1-mode">
+          <div class="v1-mode-label">🔥 SURVIVAL</div>
+          <div class="v1-mode-xp">+80 XP/RUN</div>
+          <div class="v1-mode-btn">PLAY!</div>
+        </div>
+        <div class="v1-mode">
+          <div class="v1-mode-label">⚡ RUSH</div>
+          <div class="v1-mode-xp">+60 XP/RUN</div>
+          <div class="v1-mode-btn">PLAY!</div>
+        </div>
+      </div>
+    </div></div></div>
+    <div class="caption">
+      <h3>V1 · Authentic White Manga</h3>
+      <p>Full paper-white break from Home. Thick ink panels, Bangers display font, halftone dots, shodou-style seasonal badge, starburst "14 DAYS" callout. Feels like stepping into a manga page.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════ V2 ═══════════════ -->
+  <div class="card">
+    <div class="phone"><div class="phone-inner"><div class="v2">
+      <div class="v1-topbar">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="v2-title">EVENTS</div>
+          <div class="v2-season">SEASON 1</div>
+        </div>
+        <div class="v2-xp">★ 430 XP</div>
+      </div>
+
+      <div class="panel panel-hero">
+        <div class="speedlines"></div>
+        <div class="live-badge">LIVE NOW!!</div>
+        <div class="event-title">JAPANESE<br>ANIME</div>
+        <div class="event-sub">1,000 exclusive questions</div>
+        <div class="days-burst">
+          <div style="text-align:center">
+            <div class="days-burst-n">14</div>
+            <div class="days-burst-l">DAYS LEFT</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel v1-daily">
+        <div class="v1-daily-head">
+          <div class="v1-daily-title">7-DAY STREAK</div>
+          <div class="v1-daily-hint">D4 · TAP TO CLAIM!</div>
+        </div>
+        <div class="v1-days">
+          <div class="v1-day claimed"><div class="v1-day-icon">✓</div><div class="v1-day-num">D1</div></div>
+          <div class="v1-day claimed"><div class="v1-day-icon">✓</div><div class="v1-day-num">D2</div></div>
+          <div class="v1-day claimed"><div class="v1-day-icon">✓</div><div class="v1-day-num">D3</div></div>
+          <div class="v1-day today"><div class="v1-day-icon">🎁</div><div class="v1-day-num">D4</div></div>
+          <div class="v1-day"><div class="v1-day-icon">·</div><div class="v1-day-num">D5</div></div>
+          <div class="v1-day"><div class="v1-day-icon">·</div><div class="v1-day-num">D6</div></div>
+          <div class="v1-day"><div class="v1-day-icon">★</div><div class="v1-day-num">D7</div></div>
+        </div>
+      </div>
+
+      <div class="v1-modes-title" style="color:#fff">EVENT MODES</div>
+      <div class="v1-modes">
+        <div class="v1-mode wide">
+          <div class="v1-mode-label">⚡ CLASSIC</div>
+          <div class="v1-mode-xp">+50 EVENT XP · DONE TODAY</div>
+          <div class="v1-mode-btn">DONE</div>
+        </div>
+        <div class="v1-mode">
+          <div class="v1-mode-label">🔥 SURVIVAL</div>
+          <div class="v1-mode-xp">+80 XP/RUN</div>
+          <div class="v1-mode-btn">PLAY!</div>
+        </div>
+        <div class="v1-mode">
+          <div class="v1-mode-label">⚡ RUSH</div>
+          <div class="v1-mode-xp">+60 XP/RUN</div>
+          <div class="v1-mode-btn">PLAY!</div>
+        </div>
+      </div>
+    </div></div></div>
+    <div class="caption">
+      <h3>V2 · Dark Seinen Manga</h3>
+      <p>Inverted: black paper, white ink. Moody & grown-up (think <em>Berserk</em>, <em>Vagabond</em>). Cohesive with rest of dark app, but still signals "event zone" via thick ink frames + sound-effect typography.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════ V3 ═══════════════ -->
+  <div class="card">
+    <div class="phone"><div class="phone-inner"><div class="v3">
+      <div class="v1-topbar">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="v3-title">EVENTS</div>
+          <div class="v3-season">SEASON 1</div>
+        </div>
+        <div class="v3-xp">★ 430 XP</div>
+      </div>
+
+      <div class="panel panel-hero">
+        <div class="speedlines"></div>
+        <div class="live-badge">LIVE NOW!!</div>
+        <div class="event-title">JAPANESE<br>ANIME</div>
+        <div class="event-sub">1,000 exclusive questions</div>
+        <div class="days-burst">
+          <div style="text-align:center">
+            <div class="days-burst-n">14</div>
+            <div class="days-burst-l">DAYS LEFT</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel v1-daily">
+        <div class="v1-daily-head">
+          <div class="v1-daily-title">7-DAY STREAK</div>
+          <div class="v1-daily-hint">D4 · TAP TO CLAIM!</div>
+        </div>
+        <div class="v1-days">
+          <div class="v1-day claimed"><div class="v1-day-icon">✓</div><div class="v1-day-num">D1</div></div>
+          <div class="v1-day claimed"><div class="v1-day-icon">✓</div><div class="v1-day-num">D2</div></div>
+          <div class="v1-day claimed"><div class="v1-day-icon">✓</div><div class="v1-day-num">D3</div></div>
+          <div class="v1-day today"><div class="v1-day-icon">🎁</div><div class="v1-day-num">D4</div></div>
+          <div class="v1-day"><div class="v1-day-icon">·</div><div class="v1-day-num">D5</div></div>
+          <div class="v1-day"><div class="v1-day-icon">·</div><div class="v1-day-num">D6</div></div>
+          <div class="v1-day"><div class="v1-day-icon">★</div><div class="v1-day-num">D7</div></div>
+        </div>
+      </div>
+
+      <div class="v3-modes-title">EVENT MODES</div>
+      <div class="v1-modes">
+        <div class="v1-mode wide">
+          <div class="v1-mode-label">⚡ CLASSIC</div>
+          <div class="v1-mode-xp">+50 EVENT XP · DONE TODAY</div>
+          <div class="v1-mode-btn">DONE</div>
+        </div>
+        <div class="v1-mode">
+          <div class="v1-mode-label">🔥 SURVIVAL</div>
+          <div class="v1-mode-xp">+80 XP/RUN</div>
+          <div class="v1-mode-btn">PLAY!</div>
+        </div>
+        <div class="v1-mode">
+          <div class="v1-mode-label">⚡ RUSH</div>
+          <div class="v1-mode-xp">+60 XP/RUN</div>
+          <div class="v1-mode-btn">PLAY!</div>
+        </div>
+      </div>
+    </div></div></div>
+    <div class="caption">
+      <h3>V3 · Hybrid Cosmic Manga</h3>
+      <p>Cosmic Home bg stays, but manga ink panels float on top with paper interiors. Best cohesion — Events tab "special" lewat panel frames & sound-effect type, tapi brand palette (indigo/pink/cyan) masih kepakai.</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
