@@ -9,7 +9,7 @@ Three unrelated polish items surfaced in user review of the current build:
 
 1. **Survival + Rush result screens** use an older visual direction — `ArcaneLibraryBackground` + glass cards with `BackdropFilter(blur: 16)` — that diverges from Daily Classic's result screen (plain dark + solid cards). The inconsistency is accidental, not intentional.
 2. **Home screen mode cards** (Classic / Survival / Rush) have weak visual hierarchy: small 40px icons, 13px title, thin accent bar, left-aligned content with significant empty space. Cards don't communicate "pick me" energy.
-3. **Event tab 7-day streak `DayBox`** has broken internal hierarchy: on mobile each box is ~45px wide, icon is 12px, reward amount is 9px (the smallest text despite being the most important info), day label "D1" is 8px. Placeholder icons `·` and `✦` mix inconsistently with emoji `🎁`, `✓`, `★`.
+3. **Event tab 7-day streak `DayBox`** has broken internal hierarchy: on mobile each box is ~45px wide, icon is 12px, reward amount is 9px (the smallest text despite being the most important info), day label "D1" is 8px. Placeholder icon `·` mixes inconsistently with emoji `🎁`, `✓`, `★`, `🃏`.
 
 All three are isolated visual concerns. None affect gameplay, state, data model (except a minor `DayBox` prop split), or routing.
 
@@ -22,7 +22,7 @@ Three independent fixes, each scoped to specific files. Event tab's manga theme 
 Survival and Rush result screens adopt Daily Classic's exact visual pattern. Daily Classic's screen (`lib/features/daily/presentation/daily_classic_result_screen.dart`) is the source of truth:
 
 - Plain `Scaffold(backgroundColor: Color(0xFF06081F))` — **no `ArcaneLibraryBackground` wrapper**.
-- Local hardcoded color tokens (not `AppColors.*`): `_bg = 0xFF06081F`, `_cardBg = 0xFF111428`, `_border = 0xFF2A2F52`, `_textSub = 0xFF9CA3AF`, `_primary = 0xFF6366F1`.
+- Local hardcoded color tokens declared as **top-level `const Color`** at the top of each result file (not inside the class, not via `AppColors.*`): `_bg = 0xFF06081F`, `_cardBg = 0xFF111428`, `_border = 0xFF2A2F52`, `_textSub = 0xFF9CA3AF`, `_primary = 0xFF6366F1`. These do not currently exist in `survival_result_screen.dart` / `rush_result_screen.dart` — they are being introduced.
 - Solid `_DarkCard` (no `BackdropFilter`, no `ClipRRect` blur, no `dart:ui` import). Copy the `_DarkCard` class definition verbatim from `daily_classic_result_screen.dart`.
 - Score display uses `fontFamily: 'Fraunces'`, `fontSize: 56`, `fontWeight: w900`, `letterSpacing: -1.5`, with a single `Shadow(color: 0x556366F1, blurRadius: 24)`. This replaces `AppTypography.displayMedium` with its two-layer primary-alpha glow.
 - Header labels ("GAME OVER" / "TIME'S UP!") and section labels ("SCORE", "RANK PROGRESS" etc.) use `fontFamily: 'Inter'`, `fontSize: 11`, `fontWeight: w700`, `letterSpacing: 3`, color `_textSub`.
@@ -82,9 +82,9 @@ Target file: `lib/features/home/presentation/home_screen.dart`, classes `_StatCa
 **Dropped:** The 3×20 accent bar under the title (`AnimatedCrossFade` + `Container(height: 3, width: 20)`). The gradient + glow already signals active state; the bar is redundant.
 
 **`_ModeData` struct changes:**
-- Remove: `String subtitle` (currently empty strings), `Color color` (still needed for backward-compat check — see below).
-- Add: `List<Color> gradientColors` (length 2), `String tagline`.
-- `color` field — repurpose as `gradientColors.first` for any remaining references (classic info banner uses `_primary`, not `_activeModeCard`'s color, so no coupling).
+- **Remove:** `String subtitle` (currently empty strings), `Color color`, `IconData icon` is kept.
+- **Add:** `List<Color> gradientColors` (length 2), `String tagline`.
+- No consumers outside `_StatCard` reference `_ModeData.color` (verified: `_buildClassicBanner` uses top-level `_primary` constant, not `modes[_activeModeCard].color`), so removal is clean.
 
 **Unchanged:** `onTap` behavior (including the `_showModeSheet` call for Survival/Rush), `_activeModeCard` state wiring, haptic feedback, `ListView.builder` outer structure.
 
@@ -93,9 +93,17 @@ Target file: `lib/features/home/presentation/home_screen.dart`, classes `_StatCa
 Target file: `lib/features/event/presentation/widgets/day_box.dart`. Layout contract (7 equal-width boxes in a `Row` consumed by `event_screen.dart`) unchanged. Only the contents of each box change.
 
 **API change (call-site breaking):**
-- Remove `final String reward;` (current: takes a pre-formatted string like `"50💎"` or `"1📘"`).
-- Add `final int rewardAmount;` and `final String rewardKind;` (e.g. `50`/`"GEM"`, `1`/`"CARD"`).
+- Remove `final String reward;` (current: takes a pre-formatted string like `"50💎"` / `"1📘"` / `"🃏"`).
+- Add `final int rewardAmount;` and `final String rewardKind;`.
 - Semantics label updates accordingly: `"Day $dayNumber, $state, $rewardAmount $rewardKind"`.
+
+**Reward kind taxonomy** (the current `_rewards` list contains 3 categories):
+
+| Current string | New (amount, kind) | Notes |
+|---|---|---|
+| `"50💎"` / `"100💎"` / `"200💎"` | `(50, "GEM")` / `(100, "GEM")` / `(200, "GEM")` | Gem/crystal rewards |
+| `"1📘"` / `"2📗"` | `(1, "CARD")` / `(2, "CARD")` | Knowledge card (📘 and 📗 both normalize to `"CARD"` — visual distinction was cosmetic only) |
+| `"🃏"` (day 7) | `(1, "JOKER")` | Final-day special: joker/wildcard reward |
 
 **Icon system (hardcoded inside `build()`, no new prop):**
 
@@ -105,7 +113,7 @@ Target file: `lib/features/event/presentation/widgets/day_box.dart`. Layout cont
 | Today | `🎁` | `🏆` |
 | Future | `💎` | `👑` |
 
-Dropped: `·` and `✦` placeholder characters.
+Dropped: `·` (placeholder dot) and `★` (ad-hoc day-7 marker) — both replaced by the state-aware icon system above.
 
 **Internal layout (box min-height ≈ 64px, `Column`, center-aligned):**
 ```
@@ -126,7 +134,11 @@ Gap between amount and kind: 0 (baseline tight, kind reads as a caption).
 
 **State color mapping unchanged** (`_isClaimed` → ink/paper, `_isToday` → red/white, default → white/ink). Today-state offset transform (-1, -1) and shadow unchanged. Border width 2px unchanged.
 
-**Call-site update in `event_screen.dart`:** Replace current `reward: "50💎"`-style arguments with `rewardAmount: 50, rewardKind: "GEM"` pairs. Where `reward: "1📘"` was used for card rewards, use `rewardAmount: 1, rewardKind: "CARD"`. The panel header icon (`🎁`) is unaffected — it's outside `DayBox`.
+**Call-site update in `event_screen.dart`** (single `DayBox(...)` call fed by the `_rewards` const list at line ~261):
+- Reshape the `static const _rewards = ['50💎', '1📘', '100💎', '1📘', '200💎', '2📗', '🃏']` list into a `static const List<({int amount, String kind})> _rewards` of 7 record entries: `(amount: 50, kind: 'GEM')`, `(amount: 1, kind: 'CARD')`, `(amount: 100, kind: 'GEM')`, `(amount: 1, kind: 'CARD')`, `(amount: 200, kind: 'GEM')`, `(amount: 2, kind: 'CARD')`, `(amount: 1, kind: 'JOKER')`.
+- Update the `_DailyLoginPanel` field `final List<String> rewards` → `final List<({int amount, String kind})> rewards` (or equivalent typedef).
+- Update the single `DayBox(...)` construction (line ~474) from `reward: rewards[i]` → `rewardAmount: rewards[i].amount, rewardKind: rewards[i].kind`.
+- The panel header icon (`🎁`) is unaffected — it lives outside `DayBox`.
 
 ## Scope
 
@@ -157,13 +169,13 @@ Gap between amount and kind: 0 (baseline tight, kind reads as a caption).
 | `_StatCard` | `lib/features/home/presentation/home_screen.dart` | Rewrite `build()`: new medallion, new typography, drop accent bar |
 | `_buildStatCards()` | `lib/features/home/presentation/home_screen.dart` | Bump `SizedBox(height: 106)` → `130`; pass new `_ModeData` fields |
 | `DayBox` | `lib/features/event/presentation/widgets/day_box.dart` | Swap `reward` → `rewardAmount`+`rewardKind`; rewrite icon selection + internal layout |
-| `event_screen.dart` DayBox call sites | `lib/features/event/presentation/event_screen.dart` | Update arg names on each of 7 instances |
+| `event_screen.dart` `_rewards` const + `_DailyLoginPanel.rewards` field + single `DayBox(...)` call | `lib/features/event/presentation/event_screen.dart` | Reshape list from `List<String>` to `List<({int amount, String kind})>` (7 entries); update `_DailyLoginPanel.rewards` field type; update the lone `DayBox(...)` constructor args to `rewardAmount:` + `rewardKind:` |
 
 Copy-from-Daily-Classic rationale: `_DarkCard` is already duplicated locally in each result file (it was `_GlassCard` there). Keeping the copy-local pattern preserves the existing file boundaries and avoids introducing a new shared widget location in this pass.
 
 ## Implementation Notes
 
-- **`EventTokens.bebas()` signature check:** Verify it accepts `weight: FontWeight.w900`. The current `day_box.dart` calls it with `w700`, so w900 should work given it's a `TextStyle.copyWith` flow. If w900 is not supported by the loaded font variant, fall back to w800.
+- **`EventTokens.bebas()` weight:** The helper forwards `weight` unmodified to `GoogleFonts.bebasNeue(fontWeight: ...)`. Bebas Neue on Google Fonts is a single-weight display face, so `w900` renders identically to `w400` — the weight arg has no visual effect but is kept for semantic clarity and parity with other display-font call-sites in the event feature.
 - **Icon characters** (`✓`, `🎁`, `🏆`, `💎`, `👑`) render at 14px — on Android emoji fonts these are monospace-square at this size. No overflow; text renders in normal line-height 1.0.
 - **Gradient medallion inactive state:** `alpha: 0.35` on both stops means the color is visible but dimmed. Icon color stays white — this is intentional, because white icon on dimmed-gradient still reads as "mode icon", whereas flipping to mode-color ink on dim bg would lose the shape signal.
 - **No new packages.** `google_fonts` is already installed; `flutter_animate` is already used in both result screens.
@@ -202,14 +214,14 @@ No change. Result screens receive data through route `extra` — no async. DayBo
 1. `SurvivalResultScreen.build()` contains no reference to `ArcaneLibraryBackground`, `BackdropFilter`, or `_GlassCard`. `grep` for those symbols in `survival_result_screen.dart` returns 0 matches.
 2. Same for `RushResultScreen` in `rush_result_screen.dart`.
 3. `SurvivalResultScreen` `_bg`, `_cardBg`, `_border`, `_textSub`, `_primary` constants exist with exact hex values listed above. Same for `RushResultScreen`.
-4. Score `Text` widget in each result screen has `TextStyle` with `fontFamily == 'Fraunces'`, `fontSize == 56`, `fontWeight == FontWeight.w900`.
+4. Grep `fontFamily: 'Fraunces'` in each of `survival_result_screen.dart` and `rush_result_screen.dart` returns ≥1 match; the containing `TextStyle` also declares `fontSize: 56` and `fontWeight: FontWeight.w900` within 20 lines.
 5. Home `_StatCard` `build()` method contains a `Container` with `decoration` using `LinearGradient` (not `color`) for the icon background. `_ModeData.gradientColors.length == 2` for all 3 mode instances.
 6. Home `_StatCard` contains **no** `AnimatedCrossFade` for the accent bar (grep confirms removal).
 7. `SizedBox(height: 106)` in `_buildStatCards()` is replaced with `SizedBox(height: 130)`.
 8. `DayBox` constructor signature matches: `required int rewardAmount, required String rewardKind`. No `String reward` parameter remains.
-9. `day_box.dart` `build()` contains no occurrences of `·` or `✦` character literals.
-10. `day_box.dart` `build()` contains no `Text('D$dayNumber', ...)` expression.
-11. `event_screen.dart` `DayBox(...)` call-sites pass both `rewardAmount:` and `rewardKind:` named arguments at all 7 instances.
+9. `day_box.dart` `build()` contains no occurrences of the literal characters `·` or `★`.
+10. `day_box.dart` `build()` contains no `Text('D$dayNumber'` expression (grep).
+11. The single `DayBox(...)` construction in `event_screen.dart` passes both `rewardAmount:` and `rewardKind:` named arguments; the `_rewards` const is a `List<({int amount, String kind})>` with 7 entries; no `'💎'` / `'📘'` / `'📗'` / `'🃏'` emoji characters remain in the `_rewards` list literal.
 12. `flutter analyze` exits with "No issues found".
 13. `flutter test` exits 0.
 
