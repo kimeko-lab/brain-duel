@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 // ─── Design tokens (Figma export) ────────────────────────────────────────────
-const Color _bg        = Color(0xFF06161A);
-const Color _navBg     = Color(0xFF0D1B1E);
-const Color _navActive = Color(0xFF00D084);
+const Color _bg        = Color(0xFF06081F);
+const Color _navBg     = Color(0xFF0B0E25);
+const Color _navActive = Color(0xFF6366F1);
 const Color _navActiveBg  = Color(0xFF020B0E); // dark pill behind active tab
 const Color _navInactive  = Color(0xFFB0C8CF); // visible but not active
 
@@ -31,9 +32,11 @@ class AppShell extends StatelessWidget {
 
   void _onTabTap(int visualIndex) {
     final branchIndex = _branchForVisualIndex[visualIndex];
+    final isSameTab = branchIndex == navigationShell.currentIndex;
+    if (!isSameTab) HapticFeedback.selectionClick();
     navigationShell.goBranch(
       branchIndex,
-      initialLocation: branchIndex == navigationShell.currentIndex,
+      initialLocation: isSameTab,
     );
   }
 

@@ -1,18 +1,21 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/widgets/background/deep_night_background.dart';
+
 // ─── Design tokens (Figma export) ────────────────────────────────────────────
-const Color _bg       = Color(0xFF06161A);
-const Color _primary  = Color(0xFF00D084);
+const Color _bg = Color(0xFF06081F);
+const Color _primary = Color(0xFF6366F1);
 const Color _cardDark = Color(0xFF112226);
-const Color _cardMid  = Color(0xFF1C3D3D);
-const Color _textSub  = Color(0xFF9CA3AF);
-const Color _border   = Color(0xFF2D4A4A);
-const Color _silver   = Color(0xFFCBD5E1);
-const Color _gold     = Color(0xFFFACC15);
+const Color _cardMid = Color(0xFF1C3D3D);
+const Color _textSub = Color(0xFF9CA3AF);
+const Color _border = Color(0xFF2A2F52);
+const Color _silver = Color(0xFFCBD5E1);
+const Color _gold = Color(0xFFFACC15);
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,30 +25,32 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _activeTab      = 0; // 0 = Daily Challenge, 1 = Versus Player
+  int _activeTab = 0; // 0 = Daily Challenge, 1 = Versus Player
   int _activeModeCard = 0; // 0 = Classic, 1 = Survival, 2 = Rush
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bg,
-      body: SafeArea(
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(child: _buildTopBar()),
-            const SliverToBoxAdapter(child: SizedBox(height: 20)),
-            SliverToBoxAdapter(child: _buildWelcome()),
-            const SliverToBoxAdapter(child: SizedBox(height: 20)),
-            SliverToBoxAdapter(child: _buildFeaturedCard()),
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
-            SliverToBoxAdapter(child: _buildTabSelector()),
-            const SliverToBoxAdapter(child: SizedBox(height: 16)),
-            SliverToBoxAdapter(child: _buildStatCards()),
-            SliverToBoxAdapter(child: _buildClassicBanner()),
-            SliverToBoxAdapter(child: _buildGameGrid()),
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
-          ],
+      body: DeepNightBackground(
+        child: SafeArea(
+          child: CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              SliverToBoxAdapter(child: _buildTopBar()),
+              const SliverToBoxAdapter(child: SizedBox(height: 20)),
+              SliverToBoxAdapter(child: _buildWelcome()),
+              const SliverToBoxAdapter(child: SizedBox(height: 20)),
+              SliverToBoxAdapter(child: _buildFeaturedCard()),
+              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+              SliverToBoxAdapter(child: _buildTabSelector()),
+              const SliverToBoxAdapter(child: SizedBox(height: 16)),
+              SliverToBoxAdapter(child: _buildStatCards()),
+              SliverToBoxAdapter(child: _buildClassicBanner()),
+              SliverToBoxAdapter(child: _buildGameGrid()),
+              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            ],
+          ),
         ),
       ),
     );
@@ -129,143 +134,143 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildFeaturedCard() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          // No fixed height — card grows with content/font scale
-          constraints: const BoxConstraints(minHeight: 130),
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF7C3AED), Color(0xFF3730A3)],
-            ),
-          ),
-          child: Stack(
-            children: [
-              // Decorative circles (clipped by ClipRRect above)
-              Positioned(
-                right: -20,
-                top: -20,
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.06),
-                  ),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              // No fixed height — card grows with content/font scale
+              constraints: const BoxConstraints(minHeight: 130),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF7C3AED), Color(0xFF3730A3)],
                 ),
               ),
-              Positioned(
-                right: 30,
-                bottom: -35,
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.04),
-                  ),
-                ),
-              ),
-              // Content — sized to children, no overflow possible
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min, // grow with content
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.18),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Text(
-                              'NEW EVENT',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 9,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                                letterSpacing: 1.3,
-                                height: 1.0,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            'Japanese Anime',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                              height: 1.2,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Total New 1000 Questions',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 12,
-                              color: Colors.white.withValues(alpha: 0.75),
-                              height: 1.2,
-                            ),
-                          ),
-                          // Fixed gap replaces Spacer — no overflow risk
-                          const SizedBox(height: 14),
-                          // Event page not yet live — button disabled
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 7,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Text(
-                              'Coming Soon',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white54,
-                                height: 1.0,
-                              ),
-                            ),
-                          ),
-                        ],
+              child: Stack(
+                children: [
+                  // Decorative circles (clipped by ClipRRect above)
+                  Positioned(
+                    right: -20,
+                    top: -20,
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withValues(alpha: 0.06),
                       ),
                     ),
-                    // Progress ring — centered vertically next to column
-                    const SizedBox(width: 12),
-                    const _ProgressRing(
-                      progress: 0.53,
-                      size: 84,
-                      strokeWidth: 7,
-                      color: Colors.white,
-                      label: '14',
-                      sublabel: 'Days Left!',
+                  ),
+                  Positioned(
+                    right: 30,
+                    bottom: -35,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withValues(alpha: 0.04),
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                  // Content — sized to children, no overflow possible
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min, // grow with content
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.18),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: const Text(
+                                  'NEW EVENT',
+                                  style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                    letterSpacing: 1.3,
+                                    height: 1.0,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Japanese Anime',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                  height: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Total New 1000 Questions',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 12,
+                                  color: Colors.white.withValues(alpha: 0.75),
+                                  height: 1.2,
+                                ),
+                              ),
+                              // Fixed gap replaces Spacer — no overflow risk
+                              const SizedBox(height: 14),
+                              // Event page not yet live — button disabled
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 7,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: const Text(
+                                  'Coming Soon',
+                                  style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white54,
+                                    height: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Progress ring — centered vertically next to column
+                        const SizedBox(width: 12),
+                        const _ProgressRing(
+                          progress: 0.53,
+                          size: 84,
+                          strokeWidth: 7,
+                          color: Colors.white,
+                          label: '14',
+                          sublabel: 'Days Left!',
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-    )
+        )
         .animate()
         .fadeIn(duration: 500.ms)
         .slideY(begin: 0.08, curve: Curves.easeOutCubic);
@@ -288,12 +293,18 @@ class _HomeScreenState extends State<HomeScreen> {
             _TabPill(
               label: 'Daily Challenge',
               isActive: _activeTab == 0,
-              onTap: () => setState(() => _activeTab = 0),
+              onTap: () {
+                HapticFeedback.selectionClick();
+                setState(() => _activeTab = 0);
+              },
             ),
             _TabPill(
               label: 'Versus Player',
               isActive: _activeTab == 1,
-              onTap: () => setState(() => _activeTab = 1),
+              onTap: () {
+                HapticFeedback.selectionClick();
+                setState(() => _activeTab = 1);
+              },
             ),
           ],
         ),
@@ -309,7 +320,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: 'Classic',
         subtitle: '',
         icon: Icons.calendar_today_rounded,
-        color: Color(0xFF00D084),
+        color: Color(0xFF6366F1),
       ),
       const _ModeData(
         title: 'Survival',
@@ -338,6 +349,7 @@ class _HomeScreenState extends State<HomeScreen> {
             data: modes[i],
             isActive: _activeModeCard == i,
             onTap: () {
+              HapticFeedback.lightImpact();
               setState(() => _activeModeCard = i);
               if (i == 1) _showModeSheet(context, _ModeSheetData.survival);
               if (i == 2) _showModeSheet(context, _ModeSheetData.rush);
@@ -431,13 +443,13 @@ class _HomeScreenState extends State<HomeScreen> {
       _GameData(
         title: 'History',
         category: 'history',
-        gradientColors: [Color(0xFFA855F7), Color(0xFF6B21A8)],
+        gradientColors: [Color(0xFFEC4899), Color(0xFF6B21A8)],
         icon: Icons.history_edu_rounded,
       ),
       _GameData(
         title: 'Sport',
         category: 'sport',
-        gradientColors: [Color(0xFF00D084), Color(0xFF008A5B)],
+        gradientColors: [Color(0xFF6366F1), Color(0xFF008A5B)],
         icon: Icons.sports_rounded,
       ),
       _GameData(
@@ -494,10 +506,7 @@ class _CurrencyPill extends StatelessWidget {
       decoration: BoxDecoration(
         color: _cardDark,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: color.withValues(alpha: 0.25),
-          width: 1,
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.25), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -593,14 +602,10 @@ class _StatCard extends StatelessWidget {
         width: 110,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: isActive
-              ? data.color.withValues(alpha: 0.12)
-              : _cardDark,
+          color: isActive ? data.color.withValues(alpha: 0.12) : _cardDark,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isActive
-                ? data.color.withValues(alpha: 0.55)
-                : _border,
+            color: isActive ? data.color.withValues(alpha: 0.55) : _border,
             width: 1.5,
           ),
         ),
@@ -679,113 +684,116 @@ class _GameCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.go('/daily/game/${data.category}'),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: data.gradientColors,
-          ),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Stack(
-          children: [
-            // Decorative circle
-            Positioned(
-              right: -14,
-              bottom: -14,
-              child: Container(
-                width: 76,
-                height: 76,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.07),
-                ),
+          onTap: () {
+            HapticFeedback.mediumImpact();
+            context.go('/daily/game/${data.category}');
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: data.gradientColors,
               ),
+              borderRadius: BorderRadius.circular(16),
             ),
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Icon
-                  Container(
-                    width: 52,
-                    height: 52,
+            child: Stack(
+              children: [
+                // Decorative circle
+                Positioned(
+                  right: -14,
+                  bottom: -14,
+                  child: Container(
+                    width: 76,
+                    height: 76,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.18),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Icon(data.icon, color: Colors.white, size: 28),
-                  ),
-                  const SizedBox(height: 10),
-                  // Title
-                  Text(
-                    data.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                      height: 1.2,
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.07),
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  // High score row
-                  Row(
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.emoji_events_rounded,
-                        size: 10,
-                        color: Colors.white.withValues(alpha: 0.8),
+                      // Icon
+                      Container(
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.18),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Icon(data.icon, color: Colors.white, size: 28),
                       ),
-                      const SizedBox(width: 3),
+                      const SizedBox(height: 10),
+                      // Title
                       Text(
-                        'Best: —',
+                        data.title,
                         maxLines: 1,
-                        style: TextStyle(
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white.withValues(alpha: 0.85),
-                          height: 1.0,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          height: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      // High score row
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.emoji_events_rounded,
+                            size: 10,
+                            color: Colors.white.withValues(alpha: 0.8),
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            'Best: —',
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white.withValues(alpha: 0.85),
+                              height: 1.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      // Daily reset badge
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Text(
+                          'Daily reset',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 9,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            height: 1.2,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  // Daily reset badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Text(
-                      'Daily reset',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 9,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        height: 1.2,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    )
+          ),
+        )
         .animate(delay: Duration(milliseconds: delay))
         .fadeIn(duration: 450.ms)
         .slideY(begin: 0.08, curve: Curves.easeOutCubic);
@@ -844,7 +852,7 @@ class _ModeStartSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFF0D2226),
+        color: Color(0xFF111428),
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.fromLTRB(
@@ -933,7 +941,7 @@ class _ModeStartSheet extends StatelessWidget {
                         color: const Color(0xFF112226),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: const Color(0xFF2D4A4A),
+                          color: const Color(0xFF2A2F52),
                           width: 1,
                         ),
                       ),
@@ -958,6 +966,7 @@ class _ModeStartSheet extends StatelessWidget {
             width: double.infinity,
             child: GestureDetector(
               onTap: () {
+                HapticFeedback.mediumImpact();
                 Navigator.of(context).pop();
                 GoRouter.of(context).go(data.route);
               },

@@ -25,10 +25,10 @@ enum CardRarity {
   Color get color {
     switch (this) {
       case common:    return const Color(0xFF9CA3AF); // gray
-      case uncommon:  return const Color(0xFF00D084); // green
+      case uncommon:  return const Color(0xFF6366F1); // green
       case rare:      return const Color(0xFF0EA5E9); // blue
       case legendary: return const Color(0xFFFBBF24); // gold
-      case unique:    return const Color(0xFFA855F7); // purple
+      case unique:    return const Color(0xFFEC4899); // purple
     }
   }
 }

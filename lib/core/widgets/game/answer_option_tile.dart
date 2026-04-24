@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../domain/state/daily_classic_state.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_spacing.dart';
+import '../../theme/app_typography.dart';
+import 'game_phase.dart';
 
 // Design tokens — match dark teal theme
-const Color _tileBase    = Color(0xFF0D2226);
-const Color _tileBorder  = Color(0xFF2D4A4A);
-const Color _accentGreen = Color(0xFF00D084);
+const Color _tileBase    = Color(0xFF111428);
+const Color _tileBorder  = Color(0xFF2A2F52);
+const Color _accentGreen = Color(0xFF6366F1);
 
 /// A tappable answer option tile that shows feedback after the user answers.
 /// No BackdropFilter — compatible with any background.
@@ -75,7 +76,12 @@ class AnswerOptionTile extends StatelessWidget {
   }
 
   VoidCallback? get _effectiveOnTap {
-    if (phase == GamePhase.answering) return onTap;
+    if (phase == GamePhase.answering && onTap != null) {
+      return () {
+        HapticFeedback.selectionClick();
+        onTap!();
+      };
+    }
     return null;
   }
 

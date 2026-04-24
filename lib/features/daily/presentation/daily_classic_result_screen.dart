@@ -7,11 +7,11 @@ import '../../../core/theme/app_spacing.dart';
 import 'widgets/crystal_reward_widget.dart';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
-const Color _bg       = Color(0xFF06161A);
-const Color _cardBg   = Color(0xFF0D2226);
-const Color _border   = Color(0xFF2D4A4A);
+const Color _bg       = Color(0xFF06081F);
+const Color _cardBg   = Color(0xFF111428);
+const Color _border   = Color(0xFF2A2F52);
 const Color _textSub  = Color(0xFF9CA3AF);
-const Color _primary  = Color(0xFF00D084);
+const Color _primary  = Color(0xFF6366F1);
 
 class DailyClassicResultScreen extends StatelessWidget {
   const DailyClassicResultScreen({super.key, required this.extra});
@@ -116,14 +116,15 @@ class DailyClassicResultScreen extends StatelessWidget {
                       '$score',
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 52,
+                        fontFamily: 'Fraunces',
+                        fontSize: 56,
                         fontWeight: FontWeight.w900,
                         color: _primary,
                         height: 1.0,
+                        letterSpacing: -1.5,
                         shadows: [
                           Shadow(
-                            color: Color(0x5500D084),
+                            color: Color(0x556366F1),
                             blurRadius: 24,
                           ),
                         ],
@@ -371,7 +372,7 @@ class _PrimaryButton extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF00D084), Color(0xFF008A5B)],
+          colors: [Color(0xFF6366F1), Color(0xFF008A5B)],
         ),
         borderRadius: BorderRadius.circular(AppSpacing.buttonRadius),
         boxShadow: [
@@ -397,7 +398,7 @@ class _PrimaryButton extends StatelessWidget {
                   fontFamily: 'Inter',
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF06161A),
+                  color: Color(0xFF06081F),
                   letterSpacing: 0.3,
                 ),
               ),

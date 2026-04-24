@@ -82,7 +82,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
   // ── Colors ─────────────────────────────────────────────────────────────────
 
   Color get _barColor {
-    if (_remaining > 5.0) return const Color(0xFF00D084); // green
+    if (_remaining > 5.0) return const Color(0xFF6366F1); // indigo
     if (_remaining > 3.0) return const Color(0xFFFACC15); // yellow
     return const Color(0xFFFF6B6B);                        // red
   }
@@ -91,37 +91,39 @@ class _CountdownTimerState extends State<CountdownTimer> {
   Widget build(BuildContext context) {
     final progress = _remaining / _startSeconds;
 
-    return Row(
-      children: [
-        // Progress bar — fills available width
-        Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 7,
-              backgroundColor: Colors.white.withValues(alpha: 0.08),
-              valueColor: AlwaysStoppedAnimation<Color>(_barColor),
+    return RepaintBoundary(
+      child: Row(
+        children: [
+          // Progress bar — fills available width
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 7,
+                backgroundColor: Colors.white.withValues(alpha: 0.08),
+                valueColor: AlwaysStoppedAnimation<Color>(_barColor),
+              ),
             ),
           ),
-        ),
-        const SizedBox(width: 10),
-        // Time label — fixed width prevents layout shift
-        SizedBox(
-          width: 38,
-          child: Text(
-            '${_remaining.toStringAsFixed(1)}s',
-            textAlign: TextAlign.right,
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: _barColor,
-              height: 1.0,
+          const SizedBox(width: 10),
+          // Time label — fixed width prevents layout shift
+          SizedBox(
+            width: 38,
+            child: Text(
+              '${_remaining.toStringAsFixed(1)}s',
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: _barColor,
+                height: 1.0,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

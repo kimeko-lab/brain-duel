@@ -1,20 +1,22 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
+import '../../../core/widgets/background/deep_night_background.dart';
 import '../../card/data/models/knowledge_card_model.dart';
 import '../../card/presentation/widgets/knowledge_card_widget.dart';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 
-const Color _bg       = Color(0xFF06161A);
-const Color _card     = Color(0xFF0D2226);
-const Color _border   = Color(0xFF2D4A4A);
-const Color _primary  = Color(0xFF00D084);
+const Color _bg = Color(0xFF06081F);
+const Color _card = Color(0xFF111428);
+const Color _border = Color(0xFF2A2F52);
+const Color _primary = Color(0xFF6366F1);
 
 const Color _silver = Color(0xFFCBD5E1);
-const Color _gold   = Color(0xFFFBBF24);
-const Color _event  = Color(0xFFA855F7);
+const Color _gold = Color(0xFFFBBF24);
+const Color _event = Color(0xFFEC4899);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Screen
@@ -48,22 +50,24 @@ class _ShopScreenState extends State<ShopScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bg,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 14),
-            _buildTabBar(),
-            const SizedBox(height: 12),
-            Expanded(
-              child: TabBarView(
-                controller: _tabs,
-                physics: const NeverScrollableScrollPhysics(),
-                children: const [_OffersTab(), _CardsTab()],
+      body: DeepNightBackground(
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 14),
+              _buildTabBar(),
+              const SizedBox(height: 12),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabs,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: const [_OffersTab(), _CardsTab()],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -101,13 +105,22 @@ class _ShopScreenState extends State<ShopScreen>
           ),
           const Spacer(),
           _CurrencyPill(
-              icon: Icons.menu_book_rounded, color: _silver, amount: 150),
+            icon: Icons.menu_book_rounded,
+            color: _silver,
+            amount: 150,
+          ),
           const SizedBox(width: 6),
           _CurrencyPill(
-              icon: Icons.auto_stories_rounded, color: _gold, amount: 12),
+            icon: Icons.auto_stories_rounded,
+            color: _gold,
+            amount: 12,
+          ),
           const SizedBox(width: 6),
           _CurrencyPill(
-              icon: Icons.auto_awesome_rounded, color: _event, amount: 3),
+            icon: Icons.auto_awesome_rounded,
+            color: _event,
+            amount: 3,
+          ),
         ],
       ),
     );
@@ -122,14 +135,20 @@ class _ShopScreenState extends State<ShopScreen>
             label: 'Offers',
             index: 0,
             current: _tabs.index,
-            onTap: () => _tabs.animateTo(0),
+            onTap: () {
+              if (_tabs.index != 0) HapticFeedback.selectionClick();
+              _tabs.animateTo(0);
+            },
           ),
           const SizedBox(width: 8),
           _TabChip(
             label: 'Knowledge Cards',
             index: 1,
             current: _tabs.index,
-            onTap: () => _tabs.animateTo(1),
+            onTap: () {
+              if (_tabs.index != 1) HapticFeedback.selectionClick();
+              _tabs.animateTo(1);
+            },
           ),
         ],
       ),
@@ -140,8 +159,11 @@ class _ShopScreenState extends State<ShopScreen>
 // ─── Shared small widgets ─────────────────────────────────────────────────────
 
 class _CurrencyPill extends StatelessWidget {
-  const _CurrencyPill(
-      {required this.icon, required this.color, required this.amount});
+  const _CurrencyPill({
+    required this.icon,
+    required this.color,
+    required this.amount,
+  });
 
   final IconData icon;
   final Color color;
@@ -352,7 +374,7 @@ class _MonthlyPassBanner extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: const Color(0xFFA855F7).withValues(alpha: 0.45),
+          color: const Color(0xFFEC4899).withValues(alpha: 0.45),
           width: 1.5,
         ),
         boxShadow: [
@@ -401,12 +423,15 @@ class _MonthlyPassBanner extends StatelessWidget {
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 7, vertical: 3),
+                                horizontal: 7,
+                                vertical: 3,
+                              ),
                               decoration: BoxDecoration(
                                 color: _gold.withValues(alpha: 0.18),
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
-                                    color: _gold.withValues(alpha: 0.45)),
+                                  color: _gold.withValues(alpha: 0.45),
+                                ),
                               ),
                               child: const Text(
                                 'MONTHLY PASS',
@@ -488,7 +513,9 @@ class _MonthlyPassBanner extends StatelessWidget {
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 22, vertical: 11),
+                          horizontal: 22,
+                          vertical: 11,
+                        ),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
                             colors: [Color(0xFFFBBF24), Color(0xFFD97706)],
@@ -526,8 +553,11 @@ class _MonthlyPassBanner extends StatelessWidget {
 }
 
 class _PassPerk extends StatelessWidget {
-  const _PassPerk(
-      {required this.icon, required this.color, required this.text});
+  const _PassPerk({
+    required this.icon,
+    required this.color,
+    required this.text,
+  });
 
   final IconData icon;
   final Color color;
@@ -558,8 +588,11 @@ class _PassPerk extends StatelessWidget {
 // ─── Section header ───────────────────────────────────────────────────────────
 
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader(
-      {required this.icon, required this.color, required this.title});
+  const _SectionHeader({
+    required this.icon,
+    required this.color,
+    required this.title,
+  });
 
   final IconData icon;
   final Color color;
@@ -583,10 +616,7 @@ class _SectionHeader extends StatelessWidget {
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: Container(
-            height: 1,
-            color: color.withValues(alpha: 0.20),
-          ),
+          child: Container(height: 1, color: color.withValues(alpha: 0.20)),
         ),
       ],
     );
@@ -617,7 +647,7 @@ class _BookBundle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isHighlighted = highlight != null;
-    final isPopular    = highlight == 'POPULAR';
+    final isPopular = highlight == 'POPULAR';
 
     return Container(
       decoration: BoxDecoration(
@@ -628,9 +658,7 @@ class _BookBundle extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isHighlighted
-              ? iconColor.withValues(alpha: 0.45)
-              : _border,
+          color: isHighlighted ? iconColor.withValues(alpha: 0.45) : _border,
           width: isHighlighted ? 1.5 : 1.0,
         ),
         boxShadow: isHighlighted
@@ -654,8 +682,10 @@ class _BookBundle extends StatelessWidget {
               child: Center(
                 child: Container(
                   margin: const EdgeInsets.only(top: 9),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: isPopular
                         ? const Color(0xFF0EA5E9).withValues(alpha: 0.20)
@@ -682,12 +712,7 @@ class _BookBundle extends StatelessWidget {
             ),
 
           Padding(
-            padding: EdgeInsets.fromLTRB(
-              10,
-              isHighlighted ? 30 : 14,
-              10,
-              12,
-            ),
+            padding: EdgeInsets.fromLTRB(10, isHighlighted ? 30 : 14, 10, 12),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -765,9 +790,7 @@ class _BookBundle extends StatelessWidget {
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
-                      shadows: [
-                        Shadow(color: Colors.black26, blurRadius: 4),
-                      ],
+                      shadows: [Shadow(color: Colors.black26, blurRadius: 4)],
                     ),
                   ),
                 ),
@@ -874,6 +897,7 @@ KnowledgeCardModel _resultCard(_DrawType type) {
 }
 
 void _openDrawReveal(BuildContext context, _DrawType type) {
+  HapticFeedback.heavyImpact();
   showGeneralDialog<void>(
     context: context,
     barrierDismissible: false,
@@ -928,10 +952,14 @@ class _CardPullItemState extends State<_CardPullItem>
       duration: const Duration(milliseconds: 1900),
     )..repeat(reverse: true);
 
-    _float = Tween<double>(begin: -6.0, end: 6.0)
-        .animate(CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOut));
-    _glow = Tween<double>(begin: 0.0, end: 1.0)
-        .animate(CurvedAnimation(parent: _glowCtrl, curve: Curves.easeInOut));
+    _float = Tween<double>(
+      begin: -6.0,
+      end: 6.0,
+    ).animate(CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOut));
+    _glow = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _glowCtrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -941,8 +969,7 @@ class _CardPullItemState extends State<_CardPullItem>
     super.dispose();
   }
 
-  Color get _glowColor =>
-      widget.type == _PullType.gold ? _gold : _silver;
+  Color get _glowColor => widget.type == _PullType.gold ? _gold : _silver;
 
   List<Color> get _cardColors => widget.type == _PullType.gold
       ? const [Color(0xFFFBBF24), Color(0xFFD97706), Color(0xFF92400E)]
@@ -980,13 +1007,15 @@ class _CardPullItemState extends State<_CardPullItem>
                   animation: _glow,
                   builder: (context, _) => Container(
                     decoration: BoxDecoration(
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(18)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(18),
+                      ),
                       gradient: RadialGradient(
                         radius: 0.85,
                         colors: [
                           _glowColor.withValues(
-                              alpha: 0.18 + 0.18 * _glow.value),
+                            alpha: 0.18 + 0.18 * _glow.value,
+                          ),
                           Colors.transparent,
                         ],
                       ),
@@ -1043,8 +1072,10 @@ class _CardPullItemState extends State<_CardPullItem>
                 const SizedBox(height: 5),
                 // Rarity range chip
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: _glowColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(6),
@@ -1143,12 +1174,18 @@ class _EventCardItemState extends State<_EventCardItem>
       duration: const Duration(milliseconds: 1800),
     )..repeat(reverse: true);
 
-    _float = Tween<double>(begin: -8.0, end: 8.0)
-        .animate(CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOut));
-    _shimmer = Tween<double>(begin: -1.0, end: 2.0)
-        .animate(CurvedAnimation(parent: _shimmerCtrl, curve: Curves.linear));
-    _glow = Tween<double>(begin: 0.0, end: 1.0)
-        .animate(CurvedAnimation(parent: _glowCtrl, curve: Curves.easeInOut));
+    _float = Tween<double>(
+      begin: -8.0,
+      end: 8.0,
+    ).animate(CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOut));
+    _shimmer = Tween<double>(
+      begin: -1.0,
+      end: 2.0,
+    ).animate(CurvedAnimation(parent: _shimmerCtrl, curve: Curves.linear));
+    _glow = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _glowCtrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -1171,10 +1208,7 @@ class _EventCardItemState extends State<_EventCardItem>
           stops: [0.0, 0.60, 1.0],
         ),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: _event.withValues(alpha: 0.55),
-          width: 1.5,
-        ),
+        border: Border.all(color: _event.withValues(alpha: 0.55), width: 1.5),
         boxShadow: [
           BoxShadow(
             color: _event.withValues(alpha: 0.30),
@@ -1199,7 +1233,9 @@ class _EventCardItemState extends State<_EventCardItem>
                       animation: _particleCtrl,
                       builder: (context, _) => CustomPaint(
                         painter: _EventParticlesPainter(
-                            _particleCtrl.value, _event),
+                          _particleCtrl.value,
+                          _event,
+                        ),
                       ),
                     ),
                   ),
@@ -1211,8 +1247,7 @@ class _EventCardItemState extends State<_EventCardItem>
                         gradient: RadialGradient(
                           radius: 0.70,
                           colors: [
-                            _event.withValues(
-                                alpha: 0.22 + 0.18 * _glow.value),
+                            _event.withValues(alpha: 0.22 + 0.18 * _glow.value),
                             Colors.transparent,
                           ],
                         ),
@@ -1221,14 +1256,17 @@ class _EventCardItemState extends State<_EventCardItem>
                   ),
                   // Floating card with shimmer
                   AnimatedBuilder(
-                    animation:
-                        Listenable.merge([_floatCtrl, _shimmerCtrl, _glowCtrl]),
+                    animation: Listenable.merge([
+                      _floatCtrl,
+                      _shimmerCtrl,
+                      _glowCtrl,
+                    ]),
                     builder: (context, _) => Transform.translate(
                       offset: Offset(0, _float.value),
                       child: _MiniCard(
                         colors: const [
                           Color(0xFFE9D5FF),
-                          Color(0xFFA855F7),
+                          Color(0xFFEC4899),
                           Color(0xFF5B21B6),
                         ],
                         glowColor: _event,
@@ -1250,13 +1288,14 @@ class _EventCardItemState extends State<_EventCardItem>
                 children: [
                   // Badge
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: _event.withValues(alpha: 0.16),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                          color: _event.withValues(alpha: 0.50)),
+                      border: Border.all(color: _event.withValues(alpha: 0.50)),
                     ),
                     child: const Text(
                       'LIMITED EVENT',
@@ -1296,8 +1335,10 @@ class _EventCardItemState extends State<_EventCardItem>
                   ),
                   const SizedBox(height: 6),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: _event.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(6),
@@ -1319,8 +1360,7 @@ class _EventCardItemState extends State<_EventCardItem>
                     child: _DrawButton(
                       color: _event,
                       label: 'DRAW',
-                      onTap: () =>
-                          _openDrawReveal(context, _DrawType.event),
+                      onTap: () => _openDrawReveal(context, _DrawType.event),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -1328,8 +1368,11 @@ class _EventCardItemState extends State<_EventCardItem>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.auto_awesome_rounded,
-                          size: 11, color: _event),
+                      const Icon(
+                        Icons.auto_awesome_rounded,
+                        size: 11,
+                        color: _event,
+                      ),
                       const SizedBox(width: 5),
                       Text(
                         '1 Event Book',
@@ -1406,9 +1449,7 @@ class _MiniCard extends StatelessWidget {
           children: [
             // Dot pattern
             Positioned.fill(
-              child: CustomPaint(
-                painter: _MiniCardDotPainter(glowColor),
-              ),
+              child: CustomPaint(painter: _MiniCardDotPainter(glowColor)),
             ),
             // L-corner ornaments
             _miniCorner(top: 4, left: 4, angle: 0),
@@ -1466,16 +1507,17 @@ class _ShimmerSweep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // LayoutBuilder lets us adapt to actual card width at runtime
-    return LayoutBuilder(builder: (context, constraints) {
-      final cardW  = constraints.maxWidth;
-      const stripeW = 22.0;
-      final x = progress * (cardW + stripeW * 2) - stripeW;
-      return _buildSweep(x, stripeW);
-    });
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cardW = constraints.maxWidth;
+        const stripeW = 22.0;
+        final x = progress * (cardW + stripeW * 2) - stripeW;
+        return _buildSweep(x, stripeW);
+      },
+    );
   }
 
   Widget _buildSweep(double x, double stripeW) {
-
     return Positioned.fill(
       child: Transform.translate(
         offset: Offset(x, 0),
@@ -1497,7 +1539,6 @@ class _ShimmerSweep extends StatelessWidget {
     );
   }
 }
-
 
 // ─── Draw button ──────────────────────────────────────────────────────────────
 
@@ -1615,8 +1656,8 @@ class _EventParticlesPainter extends CustomPainter {
       final alpha = t < 0.2
           ? t / 0.2 * 0.55
           : t > 0.8
-              ? (1 - t) / 0.2 * 0.55
-              : 0.55;
+          ? (1 - t) / 0.2 * 0.55
+          : 0.55;
 
       final paint = Paint()
         ..color = color.withValues(alpha: alpha)
@@ -1638,8 +1679,7 @@ class _EventParticlesPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_EventParticlesPainter old) =>
-      old.progress != progress;
+  bool shouldRepaint(_EventParticlesPainter old) => old.progress != progress;
 }
 
 class _Particle {
@@ -1657,10 +1697,7 @@ class _Particle {
 // ─── Draw Reveal Dialog ───────────────────────────────────────────────────────
 
 class _DrawRevealDialog extends StatefulWidget {
-  const _DrawRevealDialog({
-    required this.drawType,
-    required this.resultCard,
-  });
+  const _DrawRevealDialog({required this.drawType, required this.resultCard});
 
   final _DrawType drawType;
   final KnowledgeCardModel resultCard;
@@ -1700,17 +1737,23 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
 
   Color get _accentColor {
     switch (widget.drawType) {
-      case _DrawType.silver: return _silver;
-      case _DrawType.gold:   return _gold;
-      case _DrawType.event:  return _event;
+      case _DrawType.silver:
+        return _silver;
+      case _DrawType.gold:
+        return _gold;
+      case _DrawType.event:
+        return _event;
     }
   }
 
   IconData get _bookIcon {
     switch (widget.drawType) {
-      case _DrawType.silver: return Icons.menu_book_rounded;
-      case _DrawType.gold:   return Icons.auto_stories_rounded;
-      case _DrawType.event:  return Icons.local_library_rounded;
+      case _DrawType.silver:
+        return Icons.menu_book_rounded;
+      case _DrawType.gold:
+        return Icons.auto_stories_rounded;
+      case _DrawType.event:
+        return Icons.local_library_rounded;
     }
   }
 
@@ -1732,37 +1775,37 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
     );
 
     // Book shake: dampened oscillation — interval 0.00–0.28
-    _bookShakeX = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: -12.0), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: -12.0, end: 12.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 12.0, end: -10.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: -10.0, end: 10.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 10.0, end: -7.0),  weight: 2),
-      TweenSequenceItem(tween: Tween(begin: -7.0,  end: 7.0),  weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 7.0,   end: 0.0),  weight: 1),
-    ]).animate(CurvedAnimation(
-      parent: _master,
-      curve: const Interval(0.00, 0.28),
-    ));
+    _bookShakeX =
+        TweenSequence<double>([
+          TweenSequenceItem(tween: Tween(begin: 0.0, end: -12.0), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: -12.0, end: 12.0), weight: 2),
+          TweenSequenceItem(tween: Tween(begin: 12.0, end: -10.0), weight: 2),
+          TweenSequenceItem(tween: Tween(begin: -10.0, end: 10.0), weight: 2),
+          TweenSequenceItem(tween: Tween(begin: 10.0, end: -7.0), weight: 2),
+          TweenSequenceItem(tween: Tween(begin: -7.0, end: 7.0), weight: 2),
+          TweenSequenceItem(tween: Tween(begin: 7.0, end: 0.0), weight: 1),
+        ]).animate(
+          CurvedAnimation(parent: _master, curve: const Interval(0.00, 0.28)),
+        );
 
     // Glow: 0 → hold → 0 — interval 0.03–0.50
-    _glowOpacity = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 1),
-      TweenSequenceItem(tween: ConstantTween(1.0),           weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 1),
-    ]).animate(CurvedAnimation(
-      parent: _master,
-      curve: const Interval(0.03, 0.50),
-    ));
+    _glowOpacity =
+        TweenSequence<double>([
+          TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 1),
+          TweenSequenceItem(tween: ConstantTween(1.0), weight: 2),
+          TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 1),
+        ]).animate(
+          CurvedAnimation(parent: _master, curve: const Interval(0.03, 0.50)),
+        );
 
     // White flash — interval 0.30–0.46
-    _flashOpacity = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 1),
-    ]).animate(CurvedAnimation(
-      parent: _master,
-      curve: const Interval(0.30, 0.46),
-    ));
+    _flashOpacity =
+        TweenSequence<double>([
+          TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 1),
+        ]).animate(
+          CurvedAnimation(parent: _master, curve: const Interval(0.30, 0.46)),
+        );
 
     // Card zoom-in — interval 0.44–0.88
     _cardScale = Tween<double>(begin: 0.03, end: 1.0).animate(
@@ -1782,10 +1825,7 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
 
     // Card fade-in — interval 0.44–0.54
     _cardOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _master,
-        curve: const Interval(0.44, 0.54),
-      ),
+      CurvedAnimation(parent: _master, curve: const Interval(0.44, 0.54)),
     );
 
     // Burn mask: 0 = fully covered, 1 = fully revealed — interval 0.00–0.82
@@ -1813,9 +1853,10 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
     );
 
     // Float: ±8px, repeating
-    _floatY = Tween<double>(begin: -8.0, end: 8.0).animate(
-      CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOut),
-    );
+    _floatY = Tween<double>(
+      begin: -8.0,
+      end: 8.0,
+    ).animate(CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOut));
 
     // Sequence: master → burnCtrl → float + canDismiss
     _master.forward().then((_) {
@@ -1848,8 +1889,8 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
           animation: Listenable.merge([_master, _burnCtrl, _floatCtrl]),
           builder: (context, _) {
             final masterVal = _master.value;
-            final showBook  = masterVal < 0.46;
-            final showCard  = masterVal >= 0.44;
+            final showBook = masterVal < 0.46;
+            final showCard = masterVal >= 0.44;
 
             return Stack(
               alignment: Alignment.center,
@@ -2048,10 +2089,7 @@ class _DrawRevealDialogState extends State<_DrawRevealDialog>
 /// creating the illusion of fire burning from the bottom of the card upward.
 /// A glowing edge (rarity color) at the burn frontier completes the effect.
 class _BurnRevealPainter extends CustomPainter {
-  const _BurnRevealPainter({
-    required this.progress,
-    required this.glowColor,
-  });
+  const _BurnRevealPainter({required this.progress, required this.glowColor});
 
   /// 0 = card fully masked; 1 = card fully revealed.
   final double progress;
@@ -2104,4 +2142,3 @@ class _BurnRevealPainter extends CustomPainter {
   bool shouldRepaint(_BurnRevealPainter old) =>
       old.progress != progress || old.glowColor != glowColor;
 }
-

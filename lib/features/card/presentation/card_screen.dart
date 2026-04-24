@@ -6,10 +6,10 @@ import 'widgets/knowledge_card_widget.dart';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 
-const Color _bg        = Color(0xFF06161A);
+const Color _bg        = Color(0xFF06081F);
 const Color _cardDark  = Color(0xFF112226);
-const Color _border    = Color(0xFF2D4A4A);
-const Color _primary   = Color(0xFF00D084);
+const Color _border    = Color(0xFF2A2F52);
+const Color _primary   = Color(0xFF6366F1);
 
 // ─── Category meta ────────────────────────────────────────────────────────────
 
@@ -285,7 +285,7 @@ class _SortSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF0D2226),
+        color: const Color(0xFF111428),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.07),

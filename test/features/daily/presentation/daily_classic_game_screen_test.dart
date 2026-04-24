@@ -4,8 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:brain_duel/features/daily/presentation/daily_classic_game_screen.dart';
-import 'package:brain_duel/features/daily/presentation/widgets/answer_option_tile.dart';
-import 'package:brain_duel/features/daily/presentation/widgets/question_card.dart';
+import 'package:brain_duel/core/widgets/game/answer_option_tile.dart';
+import 'package:brain_duel/core/widgets/game/question_card.dart';
 
 // ---------------------------------------------------------------------------
 // Helpers

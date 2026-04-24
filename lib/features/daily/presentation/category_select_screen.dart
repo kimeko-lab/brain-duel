@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 // ─── Design tokens (match home screen) ───────────────────────────────────────
-const Color _bg      = Color(0xFF06161A);
-const Color _primary = Color(0xFF00D084);
+const Color _bg      = Color(0xFF06081F);
+const Color _primary = Color(0xFF6366F1);
 
 // ─── Category data ────────────────────────────────────────────────────────────
 
@@ -23,9 +23,9 @@ const _categories = [
   _Category('Geography', 'geography', Icons.public_rounded,
       [Color(0xFF0EA5E9), Color(0xFF0369A1)]),
   _Category('History', 'history', Icons.history_edu_rounded,
-      [Color(0xFFA855F7), Color(0xFF6B21A8)]),
+      [Color(0xFFEC4899), Color(0xFF6B21A8)]),
   _Category('Sport', 'sport', Icons.sports_rounded,
-      [Color(0xFF00D084), Color(0xFF008A5B)]),
+      [Color(0xFF6366F1), Color(0xFF008A5B)]),
   _Category('Entertainment', 'entertainment', Icons.movie_rounded,
       [Color(0xFFEC4899), Color(0xFFBE185D)]),
 ];

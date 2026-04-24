@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_spacing.dart';
+import '../../theme/app_spacing.dart';
 
 /// Displays "ROUND X / Y" label above a linear progress bar.
 /// Colors match the dark teal theme.
@@ -63,7 +63,7 @@ class RoundProgressBar extends StatelessWidget {
             value: progress,
             minHeight: 5,
             backgroundColor: Colors.white.withValues(alpha: 0.08),
-            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF00D084)),
+            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF6366F1)),
           ),
         ),
       ],

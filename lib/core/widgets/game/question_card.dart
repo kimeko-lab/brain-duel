@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../data/models/question_model.dart';
+import '../../../features/daily/data/models/question_model.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_spacing.dart';
+import '../../theme/app_typography.dart';
 
 /// Solid dark card that displays the current question and rarity label.
 /// No BackdropFilter — compatible with any background.
@@ -50,7 +50,7 @@ class QuestionCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.lg),
         decoration: BoxDecoration(
-          color: const Color(0xFF0D2226),
+          color: const Color(0xFF111428),
           borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
           border: Border.all(
             color: _rarityColor.withValues(alpha: 0.40),

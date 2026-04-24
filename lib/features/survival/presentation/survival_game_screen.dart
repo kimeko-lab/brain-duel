@@ -3,17 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../daily/domain/state/daily_classic_state.dart';
-import '../../daily/presentation/widgets/answer_option_tile.dart';
-import '../../daily/presentation/widgets/countdown_timer.dart';
-import '../../daily/presentation/widgets/question_card.dart';
-import '../../daily/presentation/widgets/round_progress_bar.dart';
+import '../../../core/widgets/game/answer_option_tile.dart';
+import '../../../core/widgets/game/countdown_timer.dart';
+import '../../../core/widgets/game/question_card.dart';
+import '../../../core/widgets/game/round_progress_bar.dart';
 import '../domain/providers/survival_providers.dart';
 import '../domain/state/survival_state.dart';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
-const Color _bg       = Color(0xFF06161A);
+const Color _bg       = Color(0xFF06081F);
 const Color _cardDark = Color(0xFF112226);
-const Color _border   = Color(0xFF2D4A4A);
+const Color _border   = Color(0xFF2A2F52);
 
 class SurvivalGameScreen extends ConsumerStatefulWidget {
   const SurvivalGameScreen({super.key});
@@ -53,7 +53,7 @@ class _SurvivalGameScreenState extends ConsumerState<SurvivalGameScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF0D2226),
+        backgroundColor: const Color(0xFF111428),
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -85,7 +85,7 @@ class _SurvivalGameScreenState extends ConsumerState<SurvivalGameScreen> {
             child: TextButton(
               style: TextButton.styleFrom(
                 backgroundColor:
-                    const Color(0xFF00D084).withValues(alpha: 0.12),
+                    const Color(0xFF6366F1).withValues(alpha: 0.12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -98,7 +98,7 @@ class _SurvivalGameScreenState extends ConsumerState<SurvivalGameScreen> {
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
-                  color: Color(0xFF00D084),
+                  color: Color(0xFF6366F1),
                 ),
               ),
             ),

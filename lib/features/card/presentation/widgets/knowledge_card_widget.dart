@@ -102,7 +102,7 @@ class _FrontFace extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF0D2226),
+        color: const Color(0xFF111428),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: rarityColor.withValues(alpha: 0.40),
@@ -153,7 +153,7 @@ class _FrontFace extends StatelessWidget {
 
                     Container(
                       height: 1,
-                      color: const Color(0xFF2D4A4A),
+                      color: const Color(0xFF2A2F52),
                       margin: const EdgeInsets.symmetric(vertical: 6),
                     ),
 
@@ -344,7 +344,7 @@ class _HeaderPatternPainter extends CustomPainter {
   final String category;
 
   // Shared brand-teal tint for all patterns
-  static const Color _tint = Color(0xFF00D084);
+  static const Color _tint = Color(0xFF6366F1);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -629,16 +629,16 @@ class _BackFace extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF0D2226), Color(0xFF06161A)],
+          colors: [Color(0xFF111428), Color(0xFF06081F)],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFF00D084).withValues(alpha: 0.55),
+          color: const Color(0xFF6366F1).withValues(alpha: 0.55),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF00D084).withValues(alpha: 0.12),
+            color: const Color(0xFF6366F1).withValues(alpha: 0.12),
             blurRadius: 14,
             spreadRadius: -3,
           ),
@@ -681,16 +681,16 @@ class _BackFace extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF00D084).withValues(alpha: 0.10),
+                      color: const Color(0xFF6366F1).withValues(alpha: 0.10),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: const Color(0xFF00D084).withValues(alpha: 0.45),
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.45),
                         width: 1.5,
                       ),
                     ),
                     child: const Icon(
                       Icons.menu_book_rounded,
-                      color: Color(0xFF00D084),
+                      color: Color(0xFF6366F1),
                       size: 24,
                     ),
                   ),
@@ -701,7 +701,7 @@ class _BackFace extends StatelessWidget {
                       fontFamily: 'Inter',
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF00D084),
+                      color: Color(0xFF6366F1),
                       letterSpacing: 2.8,
                       height: 1.0,
                     ),
@@ -734,7 +734,7 @@ class _DotPatternPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF00D084).withValues(alpha: 0.07)
+      ..color = const Color(0xFF6366F1).withValues(alpha: 0.07)
       ..style = PaintingStyle.fill;
 
     const spacing = 14.0;
@@ -766,7 +766,7 @@ class _CornerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF00D084).withValues(alpha: 0.55)
+      ..color = const Color(0xFF6366F1).withValues(alpha: 0.55)
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;

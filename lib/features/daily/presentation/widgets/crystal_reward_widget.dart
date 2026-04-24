@@ -29,7 +29,7 @@ class _CrystalRewardWidgetState extends State<CrystalRewardWidget> {
         horizontal: AppSpacing.xl,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D2226),
+        color: const Color(0xFF111428),
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
         border: Border.all(
           color: _silverBook.withValues(alpha: 0.55),
