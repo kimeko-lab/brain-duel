@@ -318,26 +318,26 @@ class _HomeScreenState extends State<HomeScreen> {
     final modes = [
       const _ModeData(
         title: 'Classic',
-        subtitle: '',
+        tagline: 'DAILY',
         icon: Icons.calendar_today_rounded,
-        color: Color(0xFF6366F1),
+        gradientColors: [Color(0xFF6366F1), Color(0xFF3730A3)],
       ),
       const _ModeData(
         title: 'Survival',
-        subtitle: '',
+        tagline: 'ENDLESS',
         icon: Icons.local_fire_department_rounded,
-        color: Color(0xFFFF6B6B),
+        gradientColors: [Color(0xFFFF6B6B), Color(0xFFB91C1C)],
       ),
       const _ModeData(
         title: 'Rush',
-        subtitle: '',
+        tagline: '60 SEC',
         icon: Icons.bolt_rounded,
-        color: Color(0xFFFACC15),
+        gradientColors: [Color(0xFFFACC15), Color(0xFFB45309)],
       ),
     ];
 
     return SizedBox(
-      height: 106,
+      height: 130,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -570,15 +570,15 @@ class _TabPill extends StatelessWidget {
 class _ModeData {
   const _ModeData({
     required this.title,
-    required this.subtitle,
+    required this.tagline,
     required this.icon,
-    required this.color,
+    required this.gradientColors,
   });
 
   final String title;
-  final String subtitle;
+  final String tagline;
   final IconData icon;
-  final Color color;
+  final List<Color> gradientColors;
 }
 
 class _StatCard extends StatelessWidget {
@@ -594,65 +594,90 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final gradientStart = data.gradientColors.first;
+    final gradientEnd   = data.gradientColors.last;
+
+    // Inactive: dim both gradient stops to 35% so color identity survives but
+    // card reads as secondary.
+    final activeGrad = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: isActive
+          ? [gradientStart, gradientEnd]
+          : [
+              gradientStart.withValues(alpha: 0.35),
+              gradientEnd.withValues(alpha: 0.35),
+            ],
+    );
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutCubic,
         width: 110,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
         decoration: BoxDecoration(
-          color: isActive ? data.color.withValues(alpha: 0.12) : _cardDark,
+          color: isActive ? gradientStart.withValues(alpha: 0.12) : _cardDark,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isActive ? data.color.withValues(alpha: 0.55) : _border,
+            color: isActive
+                ? gradientStart.withValues(alpha: 0.55)
+                : _border,
             width: 1.5,
           ),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Icon in a tinted rounded container
+            // Icon medallion — 56×56 gradient + glow
             Container(
-              width: 40,
-              height: 40,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
-                color: data.color.withValues(alpha: isActive ? 0.22 : 0.12),
-                borderRadius: BorderRadius.circular(11),
+                gradient: activeGrad,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: gradientStart.withValues(
+                      alpha: isActive ? 0.45 : 0.20,
+                    ),
+                    blurRadius: 18,
+                    spreadRadius: -4,
+                  ),
+                ],
               ),
-              child: Icon(data.icon, color: data.color, size: 22),
+              child: Icon(data.icon, color: Colors.white, size: 28),
             ),
-            const SizedBox(height: 9),
+            const SizedBox(height: 10),
+            // Title
             Text(
               data.title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
                 color: isActive ? Colors.white : const Color(0xFFCFD9E0),
               ),
             ),
-            // Active accent bar
-            AnimatedCrossFade(
-              duration: const Duration(milliseconds: 200),
-              crossFadeState: isActive
-                  ? CrossFadeState.showFirst
-                  : CrossFadeState.showSecond,
-              firstChild: Padding(
-                padding: const EdgeInsets.only(top: 5),
-                child: Container(
-                  height: 3,
-                  width: 20,
-                  decoration: BoxDecoration(
-                    color: data.color,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
+            const SizedBox(height: 4),
+            // Tagline subtitle
+            Text(
+              data.tagline,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 9,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.0,
+                color: isActive ? gradientStart : _textSub,
               ),
-              secondChild: const SizedBox(height: 8),
             ),
           ],
         ),
