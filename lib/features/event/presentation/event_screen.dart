@@ -258,14 +258,14 @@ class _PlayTab extends StatelessWidget {
   final bool dailyClassicDone;
   final VoidCallback onClaim;
 
-  static const _rewards = [
-    '50💎',
-    '1📘',
-    '100💎',
-    '1📘',
-    '200💎',
-    '2📗',
-    '🃏',
+  static const _rewards = <({int amount, String kind})>[
+    (amount: 50,  kind: 'GEM'),
+    (amount: 1,   kind: 'CARD'),
+    (amount: 100, kind: 'GEM'),
+    (amount: 1,   kind: 'CARD'),
+    (amount: 200, kind: 'GEM'),
+    (amount: 2,   kind: 'CARD'),
+    (amount: 1,   kind: 'JOKER'),
   ];
 
   @override
@@ -426,7 +426,7 @@ class _DailyLoginPanel extends StatelessWidget {
   final int claimedUpTo;
   final bool todayClaimed;
   final int todayIndex;
-  final List<String> rewards;
+  final List<({int amount, String kind})> rewards;
   final VoidCallback onClaim;
 
   @override
@@ -474,7 +474,8 @@ class _DailyLoginPanel extends StatelessWidget {
                   child: DayBox(
                     dayNumber: i + 1,
                     state: state,
-                    reward: rewards[i],
+                    rewardAmount: rewards[i].amount,
+                    rewardKind: rewards[i].kind,
                     onTap: isToday ? onClaim : null,
                   ),
                 ),

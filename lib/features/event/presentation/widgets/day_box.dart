@@ -11,17 +11,27 @@ class DayBox extends StatelessWidget {
     super.key,
     required this.dayNumber,
     required this.state,
-    required this.reward,
+    required this.rewardAmount,
+    required this.rewardKind,
     this.onTap,
   });
 
   final int dayNumber; // 1..7
   final DayBoxState state;
-  final String reward; // e.g. "50💎", "1📘"
+  final int rewardAmount;
+  final String rewardKind; // "GEM" / "CARD" / "JOKER"
   final VoidCallback? onTap;
 
   bool get _isToday => state == DayBoxState.today;
   bool get _isClaimed => state == DayBoxState.claimed;
+  bool get _isFinalDay => dayNumber == 7;
+
+  /// State-aware icon system. No more placeholder dots or ad-hoc stars.
+  String get _icon {
+    if (_isClaimed) return '✓';
+    if (_isToday) return _isFinalDay ? '🏆' : '🎁';
+    return _isFinalDay ? '👑' : '💎';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,23 +39,19 @@ class DayBox extends StatelessWidget {
 
     final Color bg;
     final Color fg;
-    final String icon;
     if (_isClaimed) {
       bg = EventTokens.ink;
       fg = EventTokens.paper;
-      icon = '✓';
     } else if (_isToday) {
       bg = EventTokens.red;
       fg = Colors.white;
-      icon = '🎁';
     } else {
       bg = Colors.white;
       fg = EventTokens.ink;
-      icon = dayNumber == 7 ? '★' : '·';
     }
 
     final inner = Container(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 10),
       decoration: BoxDecoration(
         color: bg,
         border: Border.all(color: EventTokens.ink, width: 2),
@@ -61,23 +67,31 @@ class DayBox extends StatelessWidget {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(icon, style: TextStyle(fontSize: 12, color: fg, height: 1.0)),
-          const SizedBox(height: 2),
+          // Decoration icon — small, state-aware
           Text(
-            reward,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: EventTokens.bebas(size: 9, color: fg, letterSpacing: 0.3),
+            _icon,
+            style: TextStyle(fontSize: 14, color: fg, height: 1.0),
           ),
-          const SizedBox(height: 1),
+          const SizedBox(height: 5),
+          // HERO: reward amount
           Text(
-            'D$dayNumber',
+            '$rewardAmount',
+            style: EventTokens.bebas(
+              size: 14,
+              color: fg,
+              weight: FontWeight.w900,
+            ),
+          ),
+          // SUPPORT: reward kind caption
+          Text(
+            rewardKind,
             style: EventTokens.bebas(
               size: 8,
-              color: fg.withValues(alpha: _isClaimed ? 0.7 : 1.0),
-              letterSpacing: 0.6,
+              color: fg,
               weight: FontWeight.w700,
+              letterSpacing: 1.2,
             ),
           ),
         ],
@@ -90,10 +104,10 @@ class DayBox extends StatelessWidget {
         : inner;
 
     final semanticsLabel = _isClaimed
-        ? 'Day $dayNumber, already claimed, $reward'
+        ? 'Day $dayNumber, already claimed, $rewardAmount $rewardKind'
         : _isToday
-            ? 'Day $dayNumber, tap to claim, reward $reward'
-            : 'Day $dayNumber, locked, future reward $reward';
+            ? 'Day $dayNumber, tap to claim, reward $rewardAmount $rewardKind'
+            : 'Day $dayNumber, locked, future reward $rewardAmount $rewardKind';
 
     return Semantics(
       button: enabled,
