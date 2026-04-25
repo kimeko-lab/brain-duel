@@ -1,18 +1,19 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 
-/// Animated crystal reward card shown on the result screen.
+// Silver book reward colors
+const Color _silverBook = Color(0xFFCBD5E1);
+
+/// Animated silver-book reward card shown on the result screen.
 ///
-/// Displays the crystal count animating from 0 → [crystals] over 1 second,
-/// with a legendary gold border glass card.
+/// Displays the book count animating from 0 → [crystals] over 1 second.
+/// No BackdropFilter — solid dark card with silver border.
 class CrystalRewardWidget extends StatefulWidget {
   const CrystalRewardWidget({super.key, required this.crystals});
 
+  /// Number of silver books earned (parameter name kept for API compatibility).
   final int crystals;
 
   @override
@@ -23,97 +24,78 @@ class _CrystalRewardWidgetState extends State<CrystalRewardWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: const EdgeInsets.symmetric(
+        vertical: AppSpacing.lg,
+        horizontal: AppSpacing.xl,
+      ),
       decoration: BoxDecoration(
+        color: const Color(0xFF111428),
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        border: Border.all(
+          color: _silverBook.withValues(alpha: 0.55),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.rarityLegendary.withValues(alpha: 0.35),
-            blurRadius: 28,
+            color: _silverBook.withValues(alpha: 0.18),
+            blurRadius: 24,
             spreadRadius: -4,
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
+            color: Colors.black.withValues(alpha: 0.22),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              vertical: AppSpacing.lg,
-              horizontal: AppSpacing.xl,
-            ),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.mountainMid.withValues(alpha: 0.55),
-                  AppColors.mountainNear.withValues(alpha: 0.65),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.menu_book_rounded,
+                color: _silverBook,
+                size: 36,
+                shadows: [
+                  Shadow(
+                    color: _silverBook.withValues(alpha: 0.50),
+                    blurRadius: 12,
+                  ),
                 ],
               ),
-              borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-              border: Border.all(
-                color: AppColors.rarityLegendary.withValues(alpha: 0.7),
-                width: 1.5,
-              ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.diamond_rounded,
-                      color: AppColors.rarityLegendary,
-                      size: 36,
+              const SizedBox(width: AppSpacing.sm),
+              TweenAnimationBuilder<int>(
+                tween: IntTween(begin: 0, end: widget.crystals),
+                duration: const Duration(milliseconds: 1000),
+                builder: (context, value, child) {
+                  return Text(
+                    '+$value',
+                    style: AppTypography.displayMedium.copyWith(
+                      color: _silverBook,
                       shadows: [
                         Shadow(
-                          color: AppColors.rarityLegendary.withValues(alpha: 0.6),
-                          blurRadius: 12,
+                          color: _silverBook.withValues(alpha: 0.50),
+                          blurRadius: 16,
                         ),
                       ],
                     ),
-                    const SizedBox(width: AppSpacing.sm),
-                    TweenAnimationBuilder<int>(
-                      tween: IntTween(begin: 0, end: widget.crystals),
-                      duration: const Duration(milliseconds: 1000),
-                      builder: (context, value, child) {
-                        return Text(
-                          '+$value',
-                          style: AppTypography.displayMedium.copyWith(
-                            color: AppColors.rarityLegendary,
-                            shadows: [
-                              Shadow(
-                                color: AppColors.rarityLegendary
-                                    .withValues(alpha: 0.6),
-                                blurRadius: 16,
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  '+${widget.crystals} CRYSTALS',
-                  style: AppTypography.labelSmall.copyWith(
-                    color: AppColors.rarityLegendary.withValues(alpha: 0.85),
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ],
+                  );
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            '+${widget.crystals} SILVER BOOKS',
+            style: AppTypography.labelSmall.copyWith(
+              color: _silverBook.withValues(alpha: 0.75),
+              letterSpacing: 2.0,
             ),
           ),
-        ),
+        ],
       ),
     );
   }

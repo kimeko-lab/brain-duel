@@ -1,8 +1,9 @@
 import 'package:flutter/foundation.dart';
+import 'package:brain_duel/core/widgets/game/game_phase.dart';
 import 'package:brain_duel/features/daily/data/models/question_model.dart';
 import 'package:brain_duel/features/daily/data/models/answer_result.dart';
 
-enum GamePhase { loading, answering, showingFeedback, finished }
+export 'package:brain_duel/core/widgets/game/game_phase.dart';
 
 @immutable
 class DailyClassicState {

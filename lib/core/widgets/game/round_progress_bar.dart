@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
+import '../../theme/app_spacing.dart';
 
-/// Displays "ROUND X / Y" text above a linear progress bar.
+/// Displays "ROUND X / Y" label above a linear progress bar.
+/// Colors match the dark teal theme.
 class RoundProgressBar extends StatelessWidget {
   const RoundProgressBar({
     super.key,
@@ -26,24 +25,33 @@ class RoundProgressBar extends StatelessWidget {
           children: [
             Text(
               'ROUND',
-              style: AppTypography.labelSmall.copyWith(
-                color: AppColors.textSecondary,
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF9CA3AF),
                 letterSpacing: 1.5,
               ),
             ),
-            const SizedBox(width: AppSpacing.xs),
+            const SizedBox(width: 6),
             Text(
               '$current / $total',
-              style: AppTypography.labelSmall.copyWith(
-                color: AppColors.textSecondary,
-                letterSpacing: 1.0,
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: Colors.white70,
+                letterSpacing: 0.5,
               ),
             ),
             const Spacer(),
             Text(
               '${(progress * 100).round()}%',
-              style: AppTypography.labelSmall.copyWith(
-                color: AppColors.textSecondary,
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF9CA3AF),
               ),
             ),
           ],
@@ -53,10 +61,9 @@ class RoundProgressBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
           child: LinearProgressIndicator(
             value: progress,
-            minHeight: 6,
-            backgroundColor: AppColors.borderSubtle,
-            valueColor:
-                const AlwaysStoppedAnimation<Color>(AppColors.primary),
+            minHeight: 5,
+            backgroundColor: Colors.white.withValues(alpha: 0.08),
+            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF6366F1)),
           ),
         ),
       ],

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
 
@@ -11,7 +10,8 @@ class AppTypography {
   AppTypography._();
 
   // === Display (Fraunces — scholarly headers) ===
-  static TextStyle displayLarge = GoogleFonts.fraunces(
+  static const TextStyle displayLarge = TextStyle(
+    fontFamily: 'Fraunces',
     fontSize: 48,
     fontWeight: FontWeight.w800,
     color: AppColors.textPrimary,
@@ -19,7 +19,8 @@ class AppTypography {
     height: 1.1,
   );
 
-  static TextStyle displayMedium = GoogleFonts.fraunces(
+  static const TextStyle displayMedium = TextStyle(
+    fontFamily: 'Fraunces',
     fontSize: 36,
     fontWeight: FontWeight.w800,
     color: AppColors.textPrimary,
@@ -27,7 +28,8 @@ class AppTypography {
     height: 1.15,
   );
 
-  static TextStyle displaySmall = GoogleFonts.fraunces(
+  static const TextStyle displaySmall = TextStyle(
+    fontFamily: 'Fraunces',
     fontSize: 28,
     fontWeight: FontWeight.w700,
     color: AppColors.textPrimary,
@@ -36,7 +38,8 @@ class AppTypography {
   );
 
   // === Headlines (Inter Bold) ===
-  static TextStyle headlineLarge = GoogleFonts.inter(
+  static const TextStyle headlineLarge = TextStyle(
+    fontFamily: 'Inter',
     fontSize: 24,
     fontWeight: FontWeight.w800,
     color: AppColors.textPrimary,
@@ -44,14 +47,16 @@ class AppTypography {
     height: 1.25,
   );
 
-  static TextStyle headlineMedium = GoogleFonts.inter(
+  static const TextStyle headlineMedium = TextStyle(
+    fontFamily: 'Inter',
     fontSize: 20,
     fontWeight: FontWeight.w700,
     color: AppColors.textPrimary,
     height: 1.3,
   );
 
-  static TextStyle headlineSmall = GoogleFonts.inter(
+  static const TextStyle headlineSmall = TextStyle(
+    fontFamily: 'Inter',
     fontSize: 18,
     fontWeight: FontWeight.w700,
     color: AppColors.textPrimary,
@@ -59,21 +64,24 @@ class AppTypography {
   );
 
   // === Body ===
-  static TextStyle bodyLarge = GoogleFonts.inter(
+  static const TextStyle bodyLarge = TextStyle(
+    fontFamily: 'Inter',
     fontSize: 16,
     fontWeight: FontWeight.w500,
     color: AppColors.textPrimary,
     height: 1.5,
   );
 
-  static TextStyle bodyMedium = GoogleFonts.inter(
+  static const TextStyle bodyMedium = TextStyle(
+    fontFamily: 'Inter',
     fontSize: 14,
     fontWeight: FontWeight.w500,
     color: AppColors.textSecondary,
     height: 1.5,
   );
 
-  static TextStyle bodySmall = GoogleFonts.inter(
+  static const TextStyle bodySmall = TextStyle(
+    fontFamily: 'Inter',
     fontSize: 12,
     fontWeight: FontWeight.w500,
     color: AppColors.textTertiary,
@@ -81,21 +89,24 @@ class AppTypography {
   );
 
   // === Labels (UI elements) ===
-  static TextStyle labelLarge = GoogleFonts.inter(
+  static const TextStyle labelLarge = TextStyle(
+    fontFamily: 'Inter',
     fontSize: 14,
     fontWeight: FontWeight.w700,
     color: AppColors.textPrimary,
     letterSpacing: 0.3,
   );
 
-  static TextStyle labelMedium = GoogleFonts.inter(
+  static const TextStyle labelMedium = TextStyle(
+    fontFamily: 'Inter',
     fontSize: 12,
     fontWeight: FontWeight.w600,
     color: AppColors.textSecondary,
     letterSpacing: 0.3,
   );
 
-  static TextStyle labelSmall = GoogleFonts.inter(
+  static const TextStyle labelSmall = TextStyle(
+    fontFamily: 'Inter',
     fontSize: 10,
     fontWeight: FontWeight.w600,
     color: AppColors.textTertiary,
@@ -103,7 +114,8 @@ class AppTypography {
   );
 
   // === Special: Score Display (Fraunces, prominent) ===
-  static TextStyle scoreDisplay = GoogleFonts.fraunces(
+  static const TextStyle scoreDisplay = TextStyle(
+    fontFamily: 'Fraunces',
     fontSize: 56,
     fontWeight: FontWeight.w900,
     color: AppColors.accentParchment,
@@ -111,7 +123,8 @@ class AppTypography {
     height: 1,
   );
 
-  static TextStyle scoreSmall = GoogleFonts.fraunces(
+  static const TextStyle scoreSmall = TextStyle(
+    fontFamily: 'Fraunces',
     fontSize: 24,
     fontWeight: FontWeight.w800,
     color: AppColors.accentParchment,

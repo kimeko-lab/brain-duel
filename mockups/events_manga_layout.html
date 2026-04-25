@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Brain Duel — Events Manga Layout</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Bebas+Neue&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5F2E8; --ink:#0B0B0B; --manga-red:#E63946;
+    --indigo:#6366F1; --pink:#EC4899; --cyan:#22D3EE;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#0E1024;color:#fff;font-family:Inter,sans-serif}
+  header{padding:28px 40px 10px;border-bottom:1px solid #222655}
+  h1{margin:0;font-size:22px;font-weight:800}
+  .sub{color:#9CA3AF;font-size:13px;margin-top:6px}
+  .row{display:flex;gap:32px;padding:28px 40px;overflow-x:auto;align-items:flex-start}
+  .card{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .phone{width:380px;height:800px;border-radius:38px;border:3px solid #222655;background:#000;overflow:hidden;position:relative;box-shadow:0 20px 60px -12px rgba(99,102,241,.25)}
+  .phone-inner{position:absolute;inset:6px;border-radius:32px;overflow:hidden}
+  .caption{text-align:center;max-width:380px}
+  .caption h3{margin:0;font-size:16px;font-weight:800}
+  .caption p{margin:6px 0 0;font-size:12px;color:#9CA3AF;line-height:1.45}
+
+  /* common V1 base */
+  .page{background:var(--paper);color:var(--ink);height:100%;position:relative;padding:14px 12px 80px;overflow:hidden}
+  .page::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(0,0,0,.09) 1px,transparent 0);background-size:6px 6px;pointer-events:none;opacity:.4}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;position:relative;z-index:2}
+  .t-left{display:flex;align-items:center;gap:8px}
+  .title{font-family:'Bangers';font-size:32px;letter-spacing:1px;line-height:1;transform:rotate(-2deg)}
+  .season{background:var(--ink);color:var(--paper);padding:3px 10px;font-family:'Bebas Neue';font-size:12px;letter-spacing:1px;border:2px solid var(--ink);transform:rotate(1.5deg)}
+  .xp-pill{border:2.5px solid var(--ink);padding:4px 10px;font-family:'Bebas Neue';font-size:13px;background:#fff;box-shadow:2px 2px 0 var(--ink)}
+
+  .tabs{display:flex;gap:6px;margin:10px 0;position:relative;z-index:2}
+  .tab{flex:1;border:2.5px solid var(--ink);background:#fff;padding:6px;font-family:'Bangers';font-size:13px;text-align:center;letter-spacing:.5px;box-shadow:2px 2px 0 var(--ink)}
+  .tab.active{background:var(--ink);color:var(--paper)}
+
+  /* common panel bits */
+  .speedlines{position:absolute;inset:0;background:repeating-linear-gradient(-18deg,transparent 0 8px,rgba(0,0,0,.06) 8px 9px);pointer-events:none}
+  .live-badge{display:inline-block;background:var(--manga-red);color:#fff;font-family:'Bangers';font-size:13px;letter-spacing:1px;padding:2px 9px;border:2px solid var(--ink);transform:rotate(-3deg);box-shadow:2px 2px 0 var(--ink)}
+  .event-title{font-family:'Bangers';font-size:30px;line-height:.95;margin:8px 0 2px}
+  .event-sub{font-size:11px;color:#444;font-weight:600}
+  .burst{width:88px;height:88px;display:grid;place-items:center;background:var(--manga-red);color:#fff;
+    clip-path:polygon(50% 0,61% 18%,80% 8%,78% 30%,100% 38%,82% 52%,100% 68%,77% 70%,80% 92%,61% 82%,50% 100%,39% 82%,20% 92%,23% 70%,0 68%,18% 52%,0 38%,22% 30%,20% 8%,39% 18%);border:2px solid var(--ink)}
+  .burst-n{font-family:'Bangers';font-size:30px;line-height:1}
+  .burst-l{font-family:'Bebas Neue';font-size:9px;letter-spacing:.8px}
+
+  /* ═════════════ GRID LAYOUT ═════════════ */
+  .g-hero{border:3px solid var(--ink);background:#fff;box-shadow:3px 3px 0 var(--ink);padding:14px;height:140px;position:relative;margin-bottom:10px;overflow:hidden}
+  .g-hero .burst{position:absolute;right:10px;top:18px}
+  .g-daily{border:3px solid var(--ink);background:#fff;box-shadow:3px 3px 0 var(--ink);padding:10px;margin-bottom:10px}
+  .days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .day{border:2px solid var(--ink);background:#fff;text-align:center;padding:5px 0;font-family:'Bebas Neue';font-size:10px}
+  .day.claimed{background:var(--ink);color:var(--paper)}
+  .day.today{background:var(--manga-red);color:#fff;box-shadow:2px 2px 0 var(--ink);transform:translate(-1px,-1px)}
+  .day-num{font-size:8px;opacity:.7}
+  .modes-title{font-family:'Bangers';font-size:16px;margin:4px 0 8px;transform:rotate(-1deg);display:inline-block}
+  .modes{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mode{border:3px solid var(--ink);background:#fff;box-shadow:2px 2px 0 var(--ink);padding:8px;position:relative;min-height:56px}
+  .mode.wide{grid-column:span 2;background:linear-gradient(135deg,#FFF9DC,#FFE88F)}
+  .mode-label{font-family:'Bangers';font-size:16px}
+  .mode-xp{font-family:'Bebas Neue';font-size:10px;color:#555}
+  .mode-btn{position:absolute;right:6px;bottom:6px;background:var(--ink);color:#fff;font-family:'Bangers';font-size:11px;padding:2px 8px;transform:rotate(-2deg)}
+
+  /* ═════════════ IRREGULAR LAYOUT ═════════════ */
+  .ir-wrap{position:relative}
+  .ir-hero{
+    border:3px solid var(--ink);background:#fff;box-shadow:4px 4px 0 var(--ink);
+    padding:14px 16px 14px 14px;height:150px;position:relative;overflow:hidden;
+    clip-path:polygon(0 0, 100% 0, 100% 82%, 78% 100%, 0 100%);
+    margin-bottom:-6px;
+  }
+  .ir-hero .burst{position:absolute;right:6px;top:10px;transform:rotate(8deg)}
+  .ir-burst-break{position:absolute;right:-6px;top:116px;z-index:5;transform:rotate(-6deg)}
+
+  .ir-daily-wrap{display:grid;grid-template-columns:3fr 2fr;gap:8px;margin:8px 0 10px}
+  .ir-daily{border:3px solid var(--ink);background:#fff;box-shadow:3px 3px 0 var(--ink);padding:10px;transform:rotate(-.7deg)}
+  .ir-sideproof{border:3px solid var(--ink);background:var(--ink);color:var(--paper);box-shadow:3px 3px 0 var(--manga-red);padding:10px;transform:rotate(1.2deg);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:4px}
+  .ir-sideproof .n{font-family:'Bangers';font-size:28px;line-height:1;color:var(--manga-red)}
+  .ir-sideproof .l{font-family:'Bebas Neue';font-size:10px;letter-spacing:.6px}
+
+  .ir-days{display:flex;gap:3px;overflow:hidden}
+  .ir-days .day{flex:1;transform:rotate(-.8deg)}
+  .ir-days .day:nth-child(2n){transform:rotate(1deg)}
+  .ir-days .day.today{transform:rotate(-2deg) translate(-1px,-2px) scale(1.05)}
+
+  .ir-modes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+  .ir-mode{border:3px solid var(--ink);background:#fff;box-shadow:3px 3px 0 var(--ink);padding:10px;position:relative;min-height:62px}
+  .ir-mode:nth-child(1){grid-column:span 2;background:linear-gradient(135deg,#FFF9DC,#FFE88F);transform:rotate(-.5deg);clip-path:polygon(0 0,100% 0,97% 88%,100% 100%,3% 100%,0 92%)}
+  .ir-mode:nth-child(2){transform:rotate(1deg)}
+  .ir-mode:nth-child(3){transform:rotate(-1deg)}
+  .ir-mode-btn{position:absolute;right:-4px;bottom:-4px;background:var(--manga-red);color:#fff;font-family:'Bangers';font-size:12px;padding:3px 10px;border:2px solid var(--ink);transform:rotate(-4deg);box-shadow:2px 2px 0 var(--ink);z-index:3}
+
+  .sfx{position:absolute;font-family:'Bangers';color:var(--manga-red);-webkit-text-stroke:2px var(--ink);font-size:28px;letter-spacing:1px;pointer-events:none;z-index:10;line-height:1}
+  .sfx-1{top:68px;right:40%;transform:rotate(-15deg)}
+  .sfx-2{top:318px;left:8px;transform:rotate(10deg);font-size:20px}
+</style>
+</head>
+<body>
+<header>
+  <h1>V1 — Grid vs Irregular Panel Layout</h1>
+  <div class="sub">Same manga ink language, different panel discipline. Which composition fits Brain Duel's Events tab?</div>
+</header>
+
+<div class="row">
+
+  <!-- GRID -->
+  <div class="card">
+    <div class="phone"><div class="phone-inner"><div class="page">
+      <div class="topbar">
+        <div class="t-left"><div class="title">EVENTS</div><div class="season">SEASON 1</div></div>
+        <div class="xp-pill">★ 430 XP</div>
+      </div>
+      <div class="tabs"><div class="tab active">PLAY</div><div class="tab">REWARDS</div><div class="tab">RANK</div></div>
+
+      <div class="g-hero">
+        <div class="speedlines"></div>
+        <div class="live-badge">LIVE NOW!!</div>
+        <div class="event-title">JAPANESE<br>ANIME</div>
+        <div class="event-sub">1,000 exclusive questions</div>
+        <div class="burst"><div style="text-align:center"><div class="burst-n">14</div><div class="burst-l">DAYS LEFT</div></div></div>
+      </div>
+
+      <div class="g-daily">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <div style="font-family:'Bangers';font-size:18px">7-DAY STREAK</div>
+          <div style="font-family:'Bebas Neue';font-size:11px;color:var(--manga-red)">D4 · TAP!</div>
+        </div>
+        <div class="days">
+          <div class="day claimed">✓<div class="day-num">D1</div></div>
+          <div class="day claimed">✓<div class="day-num">D2</div></div>
+          <div class="day claimed">✓<div class="day-num">D3</div></div>
+          <div class="day today">🎁<div class="day-num">D4</div></div>
+          <div class="day">·<div class="day-num">D5</div></div>
+          <div class="day">·<div class="day-num">D6</div></div>
+          <div class="day">★<div class="day-num">D7</div></div>
+        </div>
+      </div>
+
+      <div class="modes-title">EVENT MODES</div>
+      <div class="modes">
+        <div class="mode wide">
+          <div class="mode-label">⚡ CLASSIC</div>
+          <div class="mode-xp">+50 EVENT XP · DONE TODAY</div>
+          <div class="mode-btn" style="background:#2a7d2a">DONE</div>
+        </div>
+        <div class="mode"><div class="mode-label">🔥 SURVIVAL</div><div class="mode-xp">+80 XP/RUN</div><div class="mode-btn">PLAY!</div></div>
+        <div class="mode"><div class="mode-label">⚡ RUSH</div><div class="mode-xp">+60 XP/RUN</div><div class="mode-btn">PLAY!</div></div>
+      </div>
+    </div></div></div>
+    <div class="caption">
+      <h3>A · Grid (rapi)</h3>
+      <p>Semua panel 90°, sejajar. Mudah dibaca, ritmis, predictable. Aman untuk daily use — user tiap hari ke tab ini buat claim login.</p>
+    </div>
+  </div>
+
+  <!-- IRREGULAR -->
+  <div class="card">
+    <div class="phone"><div class="phone-inner"><div class="page">
+      <div class="sfx sfx-1">DON!!</div>
+      <div class="sfx sfx-2">GO!</div>
+
+      <div class="topbar">
+        <div class="t-left"><div class="title">EVENTS</div><div class="season">SEASON 1</div></div>
+        <div class="xp-pill">★ 430 XP</div>
+      </div>
+      <div class="tabs">
+        <div class="tab active" style="transform:rotate(-1deg)">PLAY</div>
+        <div class="tab" style="transform:rotate(.8deg)">REWARDS</div>
+        <div class="tab" style="transform:rotate(-.5deg)">RANK</div>
+      </div>
+
+      <div class="ir-wrap">
+        <div class="ir-hero">
+          <div class="speedlines"></div>
+          <div class="live-badge">LIVE NOW!!</div>
+          <div class="event-title">JAPANESE<br>ANIME</div>
+          <div class="event-sub">1,000 exclusive questions</div>
+        </div>
+        <div class="ir-burst-break burst"><div style="text-align:center"><div class="burst-n">14</div><div class="burst-l">DAYS LEFT</div></div></div>
+      </div>
+
+      <div class="ir-daily-wrap">
+        <div class="ir-daily">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+            <div style="font-family:'Bangers';font-size:16px">7-DAY STREAK</div>
+          </div>
+          <div class="ir-days">
+            <div class="day claimed">✓<div class="day-num">D1</div></div>
+            <div class="day claimed">✓<div class="day-num">D2</div></div>
+            <div class="day claimed">✓<div class="day-num">D3</div></div>
+            <div class="day today">🎁<div class="day-num">D4</div></div>
+            <div class="day">·<div class="day-num">D5</div></div>
+            <div class="day">·<div class="day-num">D6</div></div>
+            <div class="day">★<div class="day-num">D7</div></div>
+          </div>
+        </div>
+        <div class="ir-sideproof">
+          <div class="l">TODAY</div>
+          <div class="n">+1</div>
+          <div class="l">📘 BOOK</div>
+        </div>
+      </div>
+
+      <div class="modes-title" style="margin-left:6px">EVENT MODES</div>
+      <div class="ir-modes">
+        <div class="ir-mode">
+          <div class="mode-label">⚡ CLASSIC</div>
+          <div class="mode-xp">+50 EVENT XP · DONE TODAY</div>
+          <div class="ir-mode-btn" style="background:#2a7d2a">DONE</div>
+        </div>
+        <div class="ir-mode"><div class="mode-label">🔥 SURVIVAL</div><div class="mode-xp">+80 XP</div><div class="ir-mode-btn">PLAY!</div></div>
+        <div class="ir-mode"><div class="mode-label">⚡ RUSH</div><div class="mode-xp">+60 XP</div><div class="ir-mode-btn">PLAY!</div></div>
+      </div>
+    </div></div></div>
+    <div class="caption">
+      <h3>B · Irregular (teatrikal)</h3>
+      <p>Panel miring (-2° s/d +1°), hero pakai diagonal cut, burst "breaking out" dari panel, SFX text melayang. Lebih punya karakter, tapi lebih busy. Claim button tembus border = punchline khas manga.</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

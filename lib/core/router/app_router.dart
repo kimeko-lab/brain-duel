@@ -1,21 +1,73 @@
 import 'package:go_router/go_router.dart';
 
+import '../../features/card/presentation/card_screen.dart';
 import '../../features/daily/presentation/category_select_screen.dart';
 import '../../features/daily/presentation/daily_classic_game_screen.dart';
 import '../../features/daily/presentation/daily_classic_result_screen.dart';
+import '../../features/event/presentation/event_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/leaderboard/presentation/leaderboard_screen.dart';
 import '../../features/rush/presentation/rush_game_screen.dart';
 import '../../features/rush/presentation/rush_result_screen.dart';
+import '../../features/shop/presentation/shop_screen.dart';
 import '../../features/survival/presentation/survival_game_screen.dart';
 import '../../features/survival/presentation/survival_result_screen.dart';
+import '../widgets/app_shell.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const HomeScreen(),
+    // ── Shell routes (bottom nav visible) ──────────────────────────────────
+    // Branch 0: Main (/), Branch 1: Shop, Branch 2: Card, Branch 3: Event, Branch 4: Leaderboard
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return AppShell(navigationShell: navigationShell);
+      },
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/',
+              builder: (context, state) => const HomeScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/shop',
+              builder: (context, state) => const ShopScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/card',
+              builder: (context, state) => const CardScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/event',
+              builder: (context, state) => const EventScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/leaderboard',
+              builder: (context, state) => const LeaderboardScreen(),
+            ),
+          ],
+        ),
+      ],
     ),
+
+    // ── Standalone routes (no bottom nav — full screen game) ───────────────
     GoRoute(
       path: '/daily/select',
       builder: (context, state) => const CategorySelectScreen(),
