@@ -616,7 +616,7 @@ class _StatCard extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutCubic,
         width: 110,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
         decoration: BoxDecoration(
           color: isActive ? gradientStart.withValues(alpha: 0.12) : _cardDark,
           borderRadius: BorderRadius.circular(16),
